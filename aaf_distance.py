@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20140502.1'
+version = '%prog 20140929.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
@@ -217,7 +217,7 @@ infile.write('{} {}'.format(sn, sn))
 for i in xrange(sn):
     lsl = len(sl[i])
     if lsl >= 10:
-        ssl = sl[i][:9]
+        ssl = sl[i][:10]
     else:
         ssl = sl[i] + ' ' * (10 - lsl)
     infile.write('\n{}'.format(ssl))
