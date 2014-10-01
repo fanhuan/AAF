@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20140929.1'
+version = '%prog 20141001.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
@@ -248,7 +248,6 @@ if os.path.exists("./outfile"):
     os.system("rm -f outfile outtree")
 command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
 os.system(command)
-print namedic
 fh = open('outtree')
 fh1 = open(options.otpf+'.tre','w')
 for line in fh:
