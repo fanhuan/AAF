@@ -213,13 +213,18 @@ total.close()
 
 ###Write infile
 infile.write('{} {}'.format(sn, sn))
-
+namedic = {}
 for i in xrange(sn):
     lsl = len(sl[i])
     if lsl >= 10:
         ssl = sl[i][:10]
+        appendix = 1
+        while ssl in namedic:
+            ssl = sl[i][:9]+str(appendix)
+            appendix += 1
     else:
         ssl = sl[i] + ' ' * (10 - lsl)
+    namedic[ssl] = sl[i]
     infile.write('\n{}'.format(ssl))
     for j in xrange(sn):
         infile.write('\t{}'.format(dist[i][j]))
@@ -242,8 +247,30 @@ print time.strftime("%c"), 'building tree'
 if os.path.exists("./outfile"):
     os.system("rm -f outfile outtree")
 command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
-command += ' && mv -f outtree {}.tre'.format(options.otpf)
-command += ' && mv -f infile {}.dist && rm -f outfile'.format(options.otpf)
 os.system(command)
+print namedic
+fh = open('outtree')
+fh1 = open(options.otpf+'.tre','w')
+for line in fh:
+    for key in namedic:
+        if key in line:
+            newline = line.replace(key, namedic[key])
+            line = newline
+    fh1.write(newline)
+fh.close()
+fh1.close()
+fh = open('infile')
+fh1 = open(options.otpf+'.dist','w')
+for line in fh:
+    for key in namedic:
+        if key in line:
+            newline = line.replace(key, namedic[key])
+            line = newline
+    fh1.write(newline)
+fh.close()
+fh1.close()
+#command += ' && mv -f outtree {}.tre'.format(options.otpf)
+#command += ' && mv -f infile {}.dist && rm -f outfile'.format(options.otpf)
+os.system('rm -f outfile infile outtree')
 
 print time.strftime("%c"), 'end'
