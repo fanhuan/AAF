@@ -30,13 +30,13 @@ def countShared(lines, sn): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in xrange(sn)]
     for line in lines:
         line = line.split()
-	if len(line) == sn+1:
-	    line = line[1:]
-        line = [int(i) for i in line]
-        for i in xrange(sn):
-            for j in xrange(i + 1, sn):
-                if line[i] > 0 and line[j] > 0:
-                    shared[i][j] += 1
+		if len(line) == sn+1:
+			line = line[1:]
+		line = [int(i) for i in line]
+		for i in xrange(sn):
+			for j in xrange(i + 1, sn):
+				if line[i] > 0 and line[j] > 0:
+					shared[i][j] += 1
     return shared
 
 def smartopen(filename,*args,**kwargs):
@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20141001.1'
+version = '%prog 20141126.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
@@ -250,22 +250,25 @@ command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
 os.system(command)
 fh = open('outtree')
 fh1 = open(options.otpf+'.tre','w')
+
 for line in fh:
-    for key in namedic:
-        if key in line:
-            newline = line.replace(key, namedic[key])
-            line = newline
+	for key in namedic:
+		if key.rstrip()+":" in line:
+			newline = line.replace(key,namedic[key].rstrip(),1)
+			line = newline
     fh1.write(newline)
 fh.close()
 fh1.close()
 fh = open('infile')
 fh1 = open(options.otpf+'.dist','w')
 for line in fh:
-    for key in namedic:
-        if key in line:
-            newline = line.replace(key, namedic[key])
-            line = newline
-    fh1.write(newline)
+	for key in namedic:
+		if line.startswith(key):
+			newline = line.replace(key,namedic[key],1)
+			line = newline
+			break
+	fh1.write(newline)
+
 fh.close()
 fh1.close()
 #command += ' && mv -f outtree {}.tre'.format(options.otpf)
