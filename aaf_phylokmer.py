@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20140430.1'
+version = '%prog 20150514.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -63,7 +63,7 @@ parser.add_option("-d", dest = "dataDir", default = 'data',
 parser.add_option("-G", dest = "memSize", type = int, default = 4,
                   help = "total memory limit (in GB), default = 4")
 parser.add_option("-W", dest = "withKmer", action = 'store_true',
-                  help = "include k-mers in the shared k-mer table")
+                  help = "include k-mers in the shared k-mer table, otherwise not")
 parser.add_option("-s", dest = "sim", action = 'store_true',
                   help = "only print commands, do not run them")
 
@@ -224,10 +224,10 @@ if not options.sim:
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
 cut = []
+if options.withKmer:
+	cut.append('1')
 for i, sample in enumerate(samples):
     command += " '{}.pkdat.gz'".format(os.path.join(options.dataDir, sample))
-    if options.withKmer:
-        cut.append('1')
     cut.append(str((i + 1) * 2))
 if options.outFile.endswith('.gz'):
     command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
