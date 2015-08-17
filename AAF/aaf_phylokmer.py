@@ -3,7 +3,7 @@
 #
 #  aaf_phylokmer.py
 #  
-#  Copyright 2014 Yann Surget-Groba <yann@xtbg.org.cn> & Huan Fan
+#  Copyright 2015 Yann Surget-Groba <yann@xtbg.org.cn> & Huan Fan
 #  <hfan22@wisc.edu>
 #  
 #  This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20150514.1'
+version = '%prog 20150727.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -131,6 +131,16 @@ samples = []
 for fileName in os.listdir(options.dataDir):
     if os.path.isdir(os.path.join(options.dataDir, fileName)):
         samples.append(fileName)
+    else:
+        sample = fileName.split(".")[0]
+        if sample in samples:
+            sample = fileName.split(".")[0]+fileName.split(".")[1]
+            if sample in samples:
+                print 'Error, redundant sample or file names. Aborting!'
+                sys.exit(3)
+        os.system("mkdir {}/{}".format(options.dataDir,sample))
+        os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,options.dataDir,sample))
+        samples.append(sample)
 samples.sort()
 
 print 'SPECIES LIST:'
@@ -140,7 +150,7 @@ for sample in samples:
 ###Prepare kmer_count jobs
 jobList = []
 for sample in samples:
-    outFile = os.path.join(options.dataDir, '{}.pkdat.gz'.format(sample))
+    outFile = '{}.pkdat.gz'.format(sample)
     command = '{} -l {} -n {} -G {} -o {} -f {}'.format(kmerCount, options.kLen,
                n, memPerThread, outFile, options.seqFormat)
     for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
@@ -204,7 +214,7 @@ if nJobs:
 
 ###Merge output wc files
 if not options.sim:
-    divFile = os.path.join(options.dataDir, 'kmer_diversity.wc')
+    divFile = 'kmer_diversity.wc'
     handle = open(divFile, 'w')
     handle.close()
     for sample in samples:
@@ -213,7 +223,7 @@ if not options.sim:
         os.remove(kmerFile)
 
 ###Run kmer_merge
-outFile = os.path.join(options.dataDir, options.outFile)
+outFile = options.outFile
 if not options.sim:
     handle = smartopen(outFile, 'w')
     print >> handle, '#-k {}'.format(options.kLen)
@@ -227,7 +237,7 @@ cut = []
 if options.withKmer:
 	cut.append('1')
 for i, sample in enumerate(samples):
-    command += " '{}.pkdat.gz'".format(os.path.join(options.dataDir, sample))
+    command += " '{}.pkdat.gz'".format(sample)
     cut.append(str((i + 1) * 2))
 if options.outFile.endswith('.gz'):
     command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)

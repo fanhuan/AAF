@@ -3,7 +3,7 @@
 #
 #  aaf_distance.py
 #  
-#  Copyright 2013, 2014 Huan Fan <hfan22@wisc.edu> & Yann Surget-Groba 
+#  Copyright 2013, 2014,2015 Huan Fan <hfan22@wisc.edu> & Yann Surget-Groba
 #  <yann@xtbg.org.cn>
 #  
 #  This program is free software; you can redistribute it and/or modify
@@ -26,17 +26,17 @@ import sys, os, math, gzip, time
 import multiprocessing as mp
 from optparse import OptionParser
 
-def countShared(lines, sn): #count nshare only, for shared kmer table
+def countShared(lines, sn, n): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in xrange(sn)]
     for line in lines:
         line = line.split()
-		if len(line) == sn+1:
-			line = line[1:]
-		line = [int(i) for i in line]
-		for i in xrange(sn):
-			for j in xrange(i + 1, sn):
-				if line[i] > 0 and line[j] > 0:
-					shared[i][j] += 1
+	if len(line) == sn+1:
+		line = line[1:]
+	line = [int(i) for i in line]
+	for i in xrange(sn):
+		for j in xrange(i + 1, sn):
+			if line[i] >= n and line[j] > n:
+				shared[i][j] += 1
     return shared
 
 def smartopen(filename,*args,**kwargs):
@@ -52,12 +52,14 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20141126.1'
+version = '%prog 20150721.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
                   help = "number of threads to use, default = 1")
+parser.add_option("-n", dest = "filter", type = int, default = 1,
+                  help = "another chance for filtering, default = 1")
 parser.add_option("-G", dest = "memsize", type = float, default = 1,
                   help = "max memory to use (in GB), default = 1")
 parser.add_option("-o", dest = "otpf", default= 'aaf', 
@@ -111,6 +113,7 @@ except IOError:
 
 nThreads = options.nThreads
 memory = options.memsize
+n = options.filter
 
 ###Read header
 sl = []                 #species list
@@ -170,7 +173,7 @@ while True:
         line = iptf.readline()
     if not lines: #if empty
         break 
-    job = pool.apply_async(countShared, args=[lines, sn])
+    job = pool.apply_async(countShared, args=[lines, sn, n])
     
     results.append(job)
     nJobs += 1
@@ -256,23 +259,14 @@ for line in fh:
 		if key.rstrip()+":" in line:
 			newline = line.replace(key,namedic[key].rstrip(),1)
 			line = newline
-    fh1.write(newline)
+    	fh1.write(line) #This can be either line or new line because when it exits
+        	        #the for loop, line==newline
 fh.close()
 fh1.close()
-fh = open('infile')
-fh1 = open(options.otpf+'.dist','w')
-for line in fh:
-	for key in namedic:
-		if line.startswith(key):
-			newline = line.replace(key,namedic[key],1)
-			line = newline
-			break
-	fh1.write(newline)
+command = 'mv infile {}.dist'.format(options.otpf)
+os.system(command)
 
-fh.close()
-fh1.close()
-#command += ' && mv -f outtree {}.tre'.format(options.otpf)
-#command += ' && mv -f infile {}.dist && rm -f outfile'.format(options.otpf)
-os.system('rm -f outfile infile outtree')
+os.system('rm -f outfile outtree')
 
+print namedic
 print time.strftime("%c"), 'end'
