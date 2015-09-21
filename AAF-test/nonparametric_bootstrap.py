@@ -166,7 +166,7 @@ def aaf_distance(outFile,t,m,samples,kl):
     return
 
 usage = "usage: %prog [options]"
-version = '%prog 20141013.1'
+version = '%prog 20150817.1'
 parser = OptionParser(usage = usage,version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "kmer length, default = 25")
@@ -382,9 +382,9 @@ if options.stage1 > 0:
         lines= kmerTable.readlines()
         table_len = len(lines)
         for s2 in xrange(options.stage2):
-            print "{} out of {} times of bootstrap over table for the read bootstrap {}.".format(s2+1,options.stage1,s1+1)
+            print "{} out of {} times of bootstrap over table for the read bootstrap {}.".format(s2+1,options.stage2,s1+1)
             simTable = open('simTable_{}_{}'.format(s1,s2),'w')
-            for x in xrange(table_len):
+            for x in xrange(table_len/options.kLen):
                 line_num = random.randint(0,table_len-1)
                 simTable.write(lines[line_num])
             simTable.close()

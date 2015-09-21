@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  nonparametric_bootstrap.py
+#  nonparametric_bootstrap_s2.py
 #  
-#  Copyright 2014 Huan Fan <hfan22@wisc.edu>
+#  Copyright 2015 Huan Fan <hfan22@wisc.edu>
 #  
+#  This is a special nonparametric bootstrap script for AAF that starts with
+#  phylokmer.dat.gz, meaning only doing the second stage of bootstrap. You can
+#  set S1==0 in nonparametric_bootstrap.py but it will still generate the phylokmer.dat.gz
+#  for one time.
+#
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or

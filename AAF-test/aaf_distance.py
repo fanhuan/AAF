@@ -35,7 +35,7 @@ def countShared(lines, sn, n): #count nshare only, for shared kmer table
 	line = [int(i) for i in line]
 	for i in xrange(sn):
 		for j in xrange(i + 1, sn):
-			if line[i] >= n and line[j] >= n:
+			if line[i] >= n and line[j] > n:
 				shared[i][j] += 1
     return shared
 
@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20150921.1'
+version = '%prog 20150721.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
@@ -256,9 +256,8 @@ fh1 = open(options.otpf+'.tre','w')
 
 for line in fh:
 	for key in namedic:
-        	key_new = key.rstrip()+":"
-		if key_new in line:
-			newline = line.replace(key_new,namedic[key].rstrip()+":",1)
+		if key.rstrip()+":" in line:
+			newline = line.replace(key,namedic[key].rstrip(),1)
 			line = newline
     	fh1.write(line) #This can be either line or new line because when it exits
         	        #the for loop, line==newline
@@ -267,7 +266,7 @@ fh1.close()
 command = 'mv infile {}.dist'.format(options.otpf)
 os.system(command)
 
-#os.system('rm -f outfile outtree')
+os.system('rm -f outfile outtree')
 
 print namedic
 print time.strftime("%c"), 'end'

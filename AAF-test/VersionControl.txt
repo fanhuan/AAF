@@ -1,0 +1,5 @@
+Version Control Notes:
+
+20150721: Add filter option in aaf_distance.py. If you did not filter during aaf_phylokmer.py,
+now you have a second chance with aaf_distance.py
+
