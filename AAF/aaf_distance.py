@@ -267,7 +267,7 @@ fh1.close()
 command = 'mv infile {}.dist'.format(options.otpf)
 os.system(command)
 
-#os.system('rm -f outfile outtree')
+os.system('rm -f outfile outtree')
 
 print namedic
 print time.strftime("%c"), 'end'
