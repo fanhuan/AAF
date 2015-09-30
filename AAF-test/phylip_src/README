@@ -1,7 +1,0 @@
-This program was written by Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe
-and modified by Tony Ives, Huan Fan and Jacob Usinowicz to use in the AAF pipeline.
-
-To compile, just type:
-make
-
-it will create an executable file called fitch_kmerX, consense and treedist that you can then move to your PATH.

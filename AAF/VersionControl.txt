@@ -3,3 +3,5 @@ Version Control Notes:
 20150721: Add filter option in aaf_distance.py. If you did not filter during aaf_phylokmer.py,
 now you have a second chance with aaf_distance.py
 
+20150930: The default output of phylokmer.dat switched back into data directory instead of current working directory due to pairwise distance calculation. Also change to no matter the ending of the outfile is .gz or not, aaf is going to gzip it and add a .gz to the end of the outfile if that’s the case.
+

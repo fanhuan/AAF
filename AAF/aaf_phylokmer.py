@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20150727.1'
+version = '%prog 20150930.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -214,7 +214,7 @@ if nJobs:
 
 ###Merge output wc files
 if not options.sim:
-    divFile = 'kmer_diversity.wc'
+    divFile = os.path.join(options.dataDir,'kmer_diversity.wc')
     handle = open(divFile, 'w')
     handle.close()
     for sample in samples:
@@ -223,7 +223,7 @@ if not options.sim:
         os.remove(kmerFile)
 
 ###Run kmer_merge
-outFile = options.outFile
+outFile = os.path.join(options.dataDir, options.outFile)
 if not options.sim:
     handle = smartopen(outFile, 'w')
     print >> handle, '#-k {}'.format(options.kLen)
@@ -242,7 +242,7 @@ for i, sample in enumerate(samples):
 if options.outFile.endswith('.gz'):
     command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
 else:
-    command += ' | cut -f {} >> {}'.format(','.join(cut), outFile)
+    command += ' | cut -f {} | gzip >> {}.gz'.format(','.join(cut), outFile)
 print '\n', time.strftime('%c')
 print command
 if not options.sim:
