@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20150930.1'
+version = '%prog 20151019.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -54,8 +54,6 @@ parser.add_option("-t", dest = "nThreads", type = int, default = 1,
                   help = "number of threads to use, default = 1")
 parser.add_option("-n", dest = "filter", type = int, default = 1,
                   help = "k-mer filtering threshold, default = 1")
-parser.add_option("-f", dest = "seqFormat", default = "FA", 
-                  help = "format of input files, FA|FQ, default = FA")
 parser.add_option("-o", dest = "outFile", default = 'phylokmer.dat.gz',
                   help = "output file, default = phylokmer.dat.gz")
 parser.add_option("-d", dest = "dataDir", default = 'data',
@@ -151,8 +149,8 @@ for sample in samples:
 jobList = []
 for sample in samples:
     outFile = '{}.pkdat.gz'.format(sample)
-    command = '{} -l {} -n {} -G {} -o {} -f {}'.format(kmerCount, options.kLen,
-               n, memPerThread, outFile, options.seqFormat)
+    command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, options.kLen,
+               n, memPerThread, outFile)
     for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
         inputFile = os.path.join(options.dataDir, sample, inputFile)
         handle = smartopen(inputFile)
@@ -162,14 +160,11 @@ for sample in samples:
         elif firstChar == '>':
             seqFormat = 'FA'
         else:
-            seqFormat = False
-        if seqFormat == options.seqFormat:
-            command += " -i '{}'".format(inputFile)
-        else:
-            print 'Error, file {} is not in {} format. Aborting!'.\
-                   format(inputFile, options.seqFormat)
+            print 'Error, file {} is not FA or FQ format. Aborting!'.\
+                   format(inputFile)
             sys.exit(3)
-    command += ' > {}.wc'.format(sample)
+	command += " -i '{}'".format(inputFile)
+    command += '{} > {}.wc'.format(seqFormat,sample)
     jobList.append(command)
 jobList = jobList[::-1]
 
