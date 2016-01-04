@@ -26,7 +26,7 @@ import sys, os, math, gzip, time
 import multiprocessing as mp
 from optparse import OptionParser
 
-def countShared(lines, sn, n): #count nshare only, for shared kmer table
+def countShared(lines, sn): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in xrange(sn)]
     for line in lines:
         line = line.split()
@@ -35,7 +35,7 @@ def countShared(lines, sn, n): #count nshare only, for shared kmer table
 	line = [int(i) for i in line]
 	for i in xrange(sn):
 		for j in xrange(i + 1, sn):
-			if line[i] >= n and line[j] >= n:
+			if line[i]*line[j] != 0:
 				shared[i][j] += 1
     return shared
 
@@ -52,14 +52,12 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20150921.1'
+version = '%prog 20160104.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
                   help = "number of threads to use, default = 1")
-parser.add_option("-n", dest = "filter", type = int, default = 1,
-                  help = "another chance for filtering, default = 1")
 parser.add_option("-G", dest = "memsize", type = float, default = 1,
                   help = "max memory to use (in GB), default = 1")
 parser.add_option("-o", dest = "otpf", default= 'aaf', 
@@ -113,7 +111,6 @@ except IOError:
 
 nThreads = options.nThreads
 memory = options.memsize
-n = options.filter
 
 ###Read header
 sl = []                 #species list
@@ -173,7 +170,7 @@ while True:
         line = iptf.readline()
     if not lines: #if empty
         break 
-    job = pool.apply_async(countShared, args=[lines, sn, n])
+    job = pool.apply_async(countShared, args=[lines, sn])
     
     results.append(job)
     nJobs += 1
@@ -223,7 +220,10 @@ for i in xrange(sn):
         ssl = sl[i][:10]
         appendix = 1
         while ssl in namedic:
-            ssl = sl[i][:9]+str(appendix)
+            if appendix < 10:
+                ssl = sl[i][:9]+str(appendix)
+            elif appendix > 9:
+                ssl = sl[i][:8]+str(appendix)
             appendix += 1
     else:
         ssl = sl[i] + ' ' * (10 - lsl)
@@ -269,5 +269,4 @@ os.system(command)
 
 os.system('rm -f outfile outtree')
 
-print namedic
 print time.strftime("%c"), 'end'
