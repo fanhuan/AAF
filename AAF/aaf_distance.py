@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20150921.1'
+version = '%prog 20160104.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", 
                   help = "input file, default = phylokmer.dat(.gz) ")
@@ -220,7 +220,10 @@ for i in xrange(sn):
         ssl = sl[i][:10]
         appendix = 1
         while ssl in namedic:
-            ssl = sl[i][:9]+str(appendix)
+            if appendix < 10:
+                ssl = sl[i][:9]+str(appendix)
+            elif appendix > 9:
+                ssl = sl[i][:8]+str(appendix)
             appendix += 1
     else:
         ssl = sl[i] + ' ' * (10 - lsl)
@@ -266,5 +269,4 @@ os.system(command)
 
 os.system('rm -f outfile outtree')
 
-print namedic
 print time.strftime("%c"), 'end'

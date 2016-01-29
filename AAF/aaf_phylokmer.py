@@ -3,8 +3,8 @@
 #
 #  aaf_phylokmer.py
 #  
-#  Copyright 2015 Yann Surget-Groba <yann@xtbg.org.cn> & Huan Fan
-#  <hfan22@wisc.edu>
+#  Copyright 2015,2016 Huan Fan
+#  <hfan22@wisc.edu> & Yann Surget-Groba <yann@xtbg.org.cn>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20151019.1'
+version = '%prog 20160104.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -148,24 +148,25 @@ for sample in samples:
 ###Prepare kmer_count jobs
 jobList = []
 for sample in samples:
-    outFile = '{}.pkdat.gz'.format(sample)
-    command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, options.kLen,
+	outFile = '{}.pkdat.gz'.format(sample)
+	command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, options.kLen,
                n, memPerThread, outFile)
-    for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
-        inputFile = os.path.join(options.dataDir, sample, inputFile)
-        handle = smartopen(inputFile)
-        firstChar = handle.read(1)
-        if firstChar == '@':
-            seqFormat = 'FQ'
-        elif firstChar == '>':
-            seqFormat = 'FA'
-        else:
-            print 'Error, file {} is not FA or FQ format. Aborting!'.\
-                   format(inputFile)
-            sys.exit(3)
-	command += " -i '{}'".format(inputFile)
-    command += '{} > {}.wc'.format(seqFormat,sample)
-    jobList.append(command)
+	command1 = ''
+	for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
+        	inputFile = os.path.join(options.dataDir, sample, inputFile)
+        	handle = smartopen(inputFile)
+        	firstChar = handle.read(1)
+        	if firstChar == '@':
+            		seqFormat = 'FQ'
+        	elif firstChar == '>':
+            		seqFormat = 'FA'
+        	else:
+            		print 'Error, file {} is not FA or FQ format. Aborting!'.\
+                   		format(inputFile)
+            		sys.exit(3)
+		command1 += " -i '{}'".format(inputFile)
+    	command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
+    	jobList.append(command)
 jobList = jobList[::-1]
 
 ###Run jobs
@@ -209,7 +210,10 @@ if nJobs:
 
 ###Merge output wc files
 if not options.sim:
-    divFile = os.path.join(options.dataDir,'kmer_diversity.wc')
+    if options.outFile.endswith('.gz'):
+        divFile = options.outFile.rstrip('.gz')+'.wc'
+    else:
+        divFile = options.outFile + '.wc'
     handle = open(divFile, 'w')
     handle.close()
     for sample in samples:
@@ -218,7 +222,10 @@ if not options.sim:
         os.remove(kmerFile)
 
 ###Run kmer_merge
-outFile = os.path.join(options.dataDir, options.outFile)
+if options.outFile.endswith('.gz'):
+    outFile = options.outFile
+else:
+    outFile = options.outFile+'.gz'
 if not options.sim:
     handle = smartopen(outFile, 'w')
     print >> handle, '#-k {}'.format(options.kLen)
@@ -234,10 +241,9 @@ if options.withKmer:
 for i, sample in enumerate(samples):
     command += " '{}.pkdat.gz'".format(sample)
     cut.append(str((i + 1) * 2))
-if options.outFile.endswith('.gz'):
-    command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
-else:
-    command += ' | cut -f {} | gzip >> {}.gz'.format(','.join(cut), outFile)
+
+command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
+
 print '\n', time.strftime('%c')
 print command
 if not options.sim:
