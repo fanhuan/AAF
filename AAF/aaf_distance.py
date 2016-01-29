@@ -26,7 +26,7 @@ import sys, os, math, gzip, time
 import multiprocessing as mp
 from optparse import OptionParser
 
-def countShared(lines, sn, n): #count nshare only, for shared kmer table
+def countShared(lines, sn): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in xrange(sn)]
     for line in lines:
         line = line.split()
@@ -35,7 +35,7 @@ def countShared(lines, sn, n): #count nshare only, for shared kmer table
 	line = [int(i) for i in line]
 	for i in xrange(sn):
 		for j in xrange(i + 1, sn):
-			if line[i] >= n and line[j] >= n:
+			if line[i]*line[j] != 0:
 				shared[i][j] += 1
     return shared
 
@@ -58,8 +58,6 @@ parser.add_option("-i", dest = "iptf",
                   help = "input file, default = phylokmer.dat(.gz) ")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
                   help = "number of threads to use, default = 1")
-parser.add_option("-n", dest = "filter", type = int, default = 1,
-                  help = "another chance for filtering, default = 1")
 parser.add_option("-G", dest = "memsize", type = float, default = 1,
                   help = "max memory to use (in GB), default = 1")
 parser.add_option("-o", dest = "otpf", default= 'aaf', 
@@ -113,7 +111,6 @@ except IOError:
 
 nThreads = options.nThreads
 memory = options.memsize
-n = options.filter
 
 ###Read header
 sl = []                 #species list
@@ -173,7 +170,7 @@ while True:
         line = iptf.readline()
     if not lines: #if empty
         break 
-    job = pool.apply_async(countShared, args=[lines, sn, n])
+    job = pool.apply_async(countShared, args=[lines, sn])
     
     results.append(job)
     nJobs += 1
