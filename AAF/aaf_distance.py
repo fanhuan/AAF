@@ -52,18 +52,18 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20160104.1'
+version = '%prog 20160211.1'
 parser = OptionParser(Usage, version = version)
-parser.add_option("-i", dest = "iptf", 
-                  help = "input file, default = phylokmer.dat(.gz) ")
+parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
+                  help = "input file, default = phylokmer.dat.gz ")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
                   help = "number of threads to use, default = 1")
 parser.add_option("-G", dest = "memsize", type = float, default = 1,
                   help = "max memory to use (in GB), default = 1")
 parser.add_option("-o", dest = "otpf", default= 'aaf', 
                   help = "prefix of the output files, default = aaf")
-parser.add_option("-f", dest = "countf", default = "kmer_diversity.wc", 
-                  help = "k-mer diversity file, default = kmer_diversity.wc")
+parser.add_option("-f", dest = "countf", default = "phylokmer.dat.wc",
+                  help = "k-mer diversity file, default = phylokmer.dat.wc")
 
 (options, args) = parser.parse_args()
 
