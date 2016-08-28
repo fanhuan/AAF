@@ -130,15 +130,16 @@ for fileName in os.listdir(options.dataDir):
     if os.path.isdir(os.path.join(options.dataDir, fileName)):
         samples.append(fileName)
     else:
-        sample = fileName.split(".")[0]
-        if sample in samples:
-            sample = fileName.split(".")[0]+fileName.split(".")[1]
+        if not fileName.startswith('.'):
+            sample = fileName.split(".")[0]
             if sample in samples:
-                print 'Error, redundant sample or file names. Aborting!'
-                sys.exit(3)
-        os.system("mkdir {}/{}".format(options.dataDir,sample))
-        os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,options.dataDir,sample))
-        samples.append(sample)
+                sample = fileName.split(".")[0]+fileName.split(".")[1]
+                if sample in samples:
+                    print 'Error, redundant sample or file names. Aborting!'
+                    sys.exit(3)
+            os.system("mkdir {}/{}".format(options.dataDir,sample))
+            os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,options.dataDir,sample))
+            samples.append(sample)
 samples.sort()
 
 print 'SPECIES LIST:'

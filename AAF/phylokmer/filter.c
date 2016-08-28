@@ -236,7 +236,7 @@ int usage(char *prog){
 	return 1;
 }
 
-#define MAX_FILES	255
+#define MAX_FILES	2000
 
 int main(int argc, char **argv){
 	FileReader *in;
