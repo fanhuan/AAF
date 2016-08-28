@@ -3076,7 +3076,7 @@ void output_matrix_d(FILE *fp, double **matrix,
   /*** Print the matrix ***/
   /* Number of columns if requested */
   if ( output_cols ) {
-    fprintf(fp, "%5lu\n", cols);
+    fprintf(fp, "%10lu\n", cols);
   }
   
   /* Omit last column for lower triangle */
@@ -3181,7 +3181,7 @@ void output_matrix_d(FILE *fp, double **matrix,
           putc(' ', fp);
 
         /* Print the datum */
-        fprintf(fp, "%*.6f", colwidth[col], matrix[row][col]);
+        fprintf(fp, "%*.10f", colwidth[col], matrix[row][col]);
       }
       putc('\n', fp);
     } /* End of row */

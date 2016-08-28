@@ -239,7 +239,7 @@ void inputdata(boolean replicates, boolean printdata, boolean lower,
       putc(nayme[i][j], outfile);
     putc(' ', outfile);
     for (j = 1; j <= spp; j++) {
-      fprintf(outfile, "%10.5f", x[i][j - 1]);
+      fprintf(outfile, "%10.10f", x[i][j - 1]);
       if (replicates)
         fprintf(outfile, " (%3ld)", reps[i][j - 1]);
       if (j % columns == 0 && j < spp) {
@@ -472,7 +472,7 @@ void treeoutr(node *p, long *col, tree *curtree)
   if (p == curtree->root)
     fprintf(outtree, ";\n");
   else {
-    fprintf(outtree, ":%*.5f", (int)(w + 7), x);
+    fprintf(outtree, ":%*.10f", (int)(w + 7), x);
     (*col) += w + 8;
   }
 }  /* treeoutr */
@@ -529,7 +529,7 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
   if (p == start)
     fprintf(outtree, ";\n");
   else {
-    fprintf(outtree, ":%*.5f", (int) w + 7, x);
+    fprintf(outtree, ":%*.10f", (int) w + 7, x);
     *col += w + 8;
   }
 }  /* treeout */
