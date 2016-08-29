@@ -10,7 +10,7 @@
    Modified by Tony Ives, Huan Fan and Jacob Usinowicz for use with the 
    AAF pipeline */
 
-#define zsmoothings     10    /* number of zero-branch correction iterations */
+#define zsmoothings     100    /* number of zero-branch correction iterations */
 #define epsilonf        0.000001   /* a very small but not too small number  */
 #define delta           0.0001      /* a not quite so small number */
 #define MAXNUMTREES   100000000 /* a number bigger than conceivable numtrees */

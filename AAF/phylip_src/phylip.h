@@ -287,7 +287,7 @@ MALLOCRETURN    *mymalloc(long);
 /*** Output options ***/
 
 /* Number of significant figures to display in numeric output */
-#define PRECISION               7
+#define PRECISION               20
 
 /* Maximum line length of matrix output - 0 for unlimited */
 #define OUTPUT_TEXTWIDTH        90
