@@ -287,10 +287,10 @@ MALLOCRETURN    *mymalloc(long);
 /*** Output options ***/
 
 /* Number of significant figures to display in numeric output */
-#define PRECISION               20
+#define PRECISION               6
 
 /* Maximum line length of matrix output - 0 for unlimited */
-#define OUTPUT_TEXTWIDTH        90
+#define OUTPUT_TEXTWIDTH        78
 
 /** output_matrix() flags **/
 
@@ -317,7 +317,7 @@ MALLOCRETURN    *mymalloc(long);
 #define MAT_LOWERTRI    (MAT_LOWER | MAT_MACHINE)
 
 typedef long *steptr;
-typedef long longer[10];
+typedef long longer[6];
 typedef char naym[MAXNCH];
 typedef long *bitptr;
 typedef double raterootarray[maxcategs2][maxcategs2];

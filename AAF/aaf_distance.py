@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20160211.1'
+version = '%prog 20160831.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
                   help = "input file, default = phylokmer.dat.gz ")
@@ -64,7 +64,8 @@ parser.add_option("-o", dest = "otpf", default= 'aaf',
                   help = "prefix of the output files, default = aaf")
 parser.add_option("-f", dest = "countf", default = "phylokmer.dat.wc",
                   help = "k-mer diversity file, default = phylokmer.dat.wc")
-
+parser.add_option("-l", dest = "long", action = 'store_true',
+				  help = "use fitch_kmerX_long instead of fitch_kmerX")
 (options, args) = parser.parse_args()
 
 if not options.iptf:
@@ -72,14 +73,21 @@ if not options.iptf:
     print Usage
     sys.exit()
 
+
 if os.system('which fitch_kmerX > /dev/null'):
-    fitch = './fitch_kmerX'
-    if not is_exe(fitch):
-        print 'fitch_kmerX not found. Make sure it is in your PATH or the'
-        print 'current directory, and that it is executable'
+	if options.long:
+		fitch = './fitch_kmerX_long'
+	else:
+		fitch = './fitch_kmerX'
+	if not is_exe(fitch):
+		print(fitch+' not found. Make sure it is in your PATH or the')
+        print('current directory, and that it is executable')
         sys.exit()
 else:
-    fitch = 'fitch_kmerX'
+	if options.long:
+		fitch = 'fitch_kmerX_long'
+	else:
+		fitch = 'fitch_kmerX'
 
 try:
     iptf = smartopen(options.iptf)
