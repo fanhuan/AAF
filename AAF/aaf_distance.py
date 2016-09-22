@@ -27,16 +27,16 @@ import multiprocessing as mp
 from optparse import OptionParser
 
 def countShared(lines, sn): #count nshare only, for shared kmer table
-    shared = [[0] * sn for i in xrange(sn)]
+    shared = [[0] * sn for i in range(sn)]
     for line in lines:
         line = line.split()
-	if len(line) == sn+1:
-		line = line[1:]
-	line = [int(i) for i in line]
-	for i in xrange(sn):
-		for j in xrange(i + 1, sn):
-			if line[i]*line[j] != 0:
-				shared[i][j] += 1
+        if len(line) == sn+1:
+            line = line[1:]
+        line = [int(i) for i in line]
+        for i in range(sn):
+            for j in range(i + 1, sn):
+                if line[i]*line[j] != 0:
+                    shared[i][j] += 1
     return shared
 
 def smartopen(filename,*args,**kwargs):
@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20160831.1'
+version = '%prog 20160922.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
                   help = "input file, default = phylokmer.dat.gz ")
@@ -65,56 +65,56 @@ parser.add_option("-o", dest = "otpf", default= 'aaf',
 parser.add_option("-f", dest = "countf", default = "phylokmer.dat.wc",
                   help = "k-mer diversity file, default = phylokmer.dat.wc")
 parser.add_option("-l", dest = "long", action = 'store_true',
-				  help = "use fitch_kmerX_long instead of fitch_kmerX")
+                  help = "use fitch_kmerX_long instead of fitch_kmerX")
 (options, args) = parser.parse_args()
 
 if not options.iptf:
-    print 'Input file (-i) is required'
-    print Usage
+    print('Input file (-i) is required')
+    print(Usage)
     sys.exit()
 
 
 if os.system('which fitch_kmerX > /dev/null'):
-	if options.long:
-		fitch = './fitch_kmerX_long'
-	else:
-		fitch = './fitch_kmerX'
-	if not is_exe(fitch):
-		print(fitch+' not found. Make sure it is in your PATH or the')
+    if options.long:
+        fitch = './fitch_kmerX_long'
+    else:
+        fitch = './fitch_kmerX'
+    if not is_exe(fitch):
+        print(fitch+' not found. Make sure it is in your PATH or the')
         print('current directory, and that it is executable')
         sys.exit()
 else:
-	if options.long:
-		fitch = 'fitch_kmerX_long'
-	else:
-		fitch = 'fitch_kmerX'
+    if options.long:
+        fitch = 'fitch_kmerX_long'
+    else:
+        fitch = 'fitch_kmerX'
 
 try:
-    iptf = smartopen(options.iptf)
+    iptf = smartopen(options.iptf,'rt')
 except IOError:
-    print 'Cannot open file', options.iptf
+    print('Cannot open file', options.iptf)
     sys.exit()
 
 if not os.path.isfile(options.countf):
-    print 'Cannot find file', options.countf
+    print('Cannot find file', options.countf)
     sys.exit()
 
 try:
-    total = open(options.countf)
+    total = open(options.countf,'rt')
 except IOError:
-    print 'Cannot open file', options.countf
+    print('Cannot open file', options.countf)
     sys.exit()
 
 try:
-    infile = open('infile','w')
+    infile = open('infile','wt')
 except IOError:
-    print 'Cannot open infile for writing'
+    print('Cannot open infile for writing')
     sys.exit()
 
 try:
-    nsnt = file(options.otpf+'_nshare.csv','w')
+    nsnt = open(options.otpf+'_nshare.csv','wt')
 except IOError:
-    print 'Cannot open',options.otpf+'_nshare.csv', 'for writing'
+    print('Cannot open',options.otpf+'_nshare.csv', 'for writing')
     sys.exit()
 
 nThreads = options.nThreads
@@ -138,7 +138,7 @@ while True:
 
 ###Initialize shared kmers matrix
 sn = len(sl)    #species number
-nshare = [[0] * sn for i in xrange(sn)]
+nshare = [[0] * sn for i in range(sn)]
 
 ###Compute the number of lines to process per thread
 line = iptf.readline()
@@ -147,31 +147,31 @@ if memory/nThreads > 1:
     chunkLength = int(1024 ** 3 / line_size)
 else:
     chunkLength = int(memory * 1024 ** 3 / nThreads / line_size)
-print 'chunkLength =', chunkLength
+print('chunkLength = {}'.format(chunkLength))
 
 ###Compute shared kmer matrix
 nJobs = 0
 pool = mp.Pool(nThreads)
 results = []
-print time.strftime('%c'), 'start running jobs'
-print '{} running {} jobs'.format(time.strftime('%c'), nThreads)
+print('{} start running jobs'.format(time.strftime('%c')))
+print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
 while True:
     if nJobs == nThreads:
         pool.close()
         pool.join()
         for job in results:
             shared = job.get()
-            for i in xrange(sn):
-                for j in xrange(i + 1, sn):
+            for i in range(sn):
+                for j in range(i + 1, sn):
                     nshare[i][j] += shared[i][j]
 
         pool = mp.Pool(nThreads)
         nJobs = 0
         results = []
-        print '{} running {} jobs'.format(time.strftime('%c'), nThreads)
+        print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
 
     lines = []
-    for nLines in xrange(chunkLength):
+    for nLines in range(chunkLength):
         if not line: #if empty
             break
         lines.append(line)
@@ -184,13 +184,13 @@ while True:
     nJobs += 1
 
 if nJobs:
-    print '{} running last {} jobs'.format(time.strftime('%c'), len(results))
+    print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
     pool.close()
     pool.join()
     for job in results:
         shared = job.get()
-        for i in xrange(sn):
-            for j in xrange(i + 1, sn):
+        for i in range(sn):
+            for j in range(i + 1, sn):
                 nshare[i][j] += shared[i][j]
 
 iptf.close()
@@ -198,17 +198,17 @@ iptf.close()
 ###Compute distance matrix
 ntotal = [0.0] * sn
 
-for i in xrange(sn):
+for i in range(sn):
     ntotal[i] = float(total.readline().split()[1])
     if i < sn - 1:
         nsnt.write('%s%s' % (sl[i], ',')) # First line for the nshare csv file
     else:
         nsnt.write('%s\n' % sl[i]) #no extra comma at the end of the line
 
-dist = [[0] * sn for i in xrange(sn)]    
+dist = [[0] * sn for i in range(sn)]    
 
-for i in xrange(sn):
-        for j in xrange(i + 1, sn):
+for i in range(sn):
+        for j in range(i + 1, sn):
             mintotal = min(ntotal[i], ntotal[j])
             if nshare[i][j] == 0:
                 dist[j][i] = dist[i][j] = 1
@@ -222,7 +222,7 @@ total.close()
 ###Write infile
 infile.write('{} {}'.format(sn, sn))
 namedic = {}
-for i in xrange(sn):
+for i in range(sn):
     lsl = len(sl[i])
     if lsl >= 10:
         ssl = sl[i][:10]
@@ -237,7 +237,7 @@ for i in xrange(sn):
         ssl = sl[i] + ' ' * (10 - lsl)
     namedic[ssl] = sl[i]
     infile.write('\n{}'.format(ssl))
-    for j in xrange(sn):
+    for j in range(sn):
         infile.write('\t{}'.format(dist[i][j]))
         if i==j:
             if j == sn - 1:
@@ -254,22 +254,22 @@ infile.close()
 nsnt.close()
 
 ###Run fitch_kmer
-print time.strftime("%c"), 'building tree'
+print('{} building tree'.format(time.strftime("%c")))
 if os.path.exists("./outfile"):
     os.system("rm -f outfile outtree")
 command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
 os.system(command)
-fh = open('outtree')
-fh1 = open(options.otpf+'.tre','w')
+fh = open('outtree','rt')
+fh1 = open(options.otpf+'.tre','wt')
 
 for line in fh:
-	for key in namedic:
-        	key_new = key.rstrip()+":"
-		if key_new in line:
-			newline = line.replace(key_new,namedic[key].rstrip()+":",1)
-			line = newline
-    	fh1.write(line) #This can be either line or new line because when it exits
-        	        #the for loop, line==newline
+    for key in namedic:
+        key_new = key.rstrip()+":"
+        if key_new in line:
+            newline = line.replace(key_new,namedic[key].rstrip()+":",1)
+            line = newline
+    fh1.write(line) #This can be either line or new line because when it exits
+                    #the for loop, line==newline
 fh.close()
 fh1.close()
 command = 'mv infile {}.dist'.format(options.otpf)
@@ -277,4 +277,4 @@ os.system(command)
 
 os.system('rm -f outfile outtree')
 
-print time.strftime("%c"), 'end'
+print('{} end'.format(time.strftime("%c")))

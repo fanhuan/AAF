@@ -38,7 +38,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 def runJob(command, sim):
-    print command
+    print(command)
     if not sim:
         os.system(command)
     return 1
@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20160104.1'
+version = '%prog 20160922.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25, 
                   help = "k-mer length, default = 25")
@@ -61,7 +61,8 @@ parser.add_option("-d", dest = "dataDir", default = 'data',
 parser.add_option("-G", dest = "memSize", type = int, default = 4,
                   help = "total memory limit (in GB), default = 4")
 parser.add_option("-W", dest = "withKmer", action = 'store_true',
-                  help = "include k-mers in the shared k-mer table, otherwise not")
+                  help = "include k-mers in the shared k-mer table, otherwise .\
+                  not")
 parser.add_option("-s", dest = "sim", action = 'store_true',
                   help = "only print commands, do not run them")
 
@@ -71,13 +72,13 @@ nThreads = options.nThreads
 n = options.filter
 memPerThread = int(options.memSize / float(nThreads))
 if not memPerThread:
-    print 'Not enough memory, decrease nThreads or increase memSize'
+    print('Not enough memory, decrease nThreads or increase memSize')
     sys.exit()
     
 
 ###check the data directory:
 if not os.path.isdir(options.dataDir):
-    print 'Cannot find data directory {}'.format(options.dataDir)
+    print('Cannot find data directory {}'.format(options.dataDir))
     sys.exit(2)
 
 
@@ -87,8 +88,8 @@ if options.kLen > 25:
     if os.system('which kmer_countx > /dev/null'):
         kmerCount = './kmer_countx'
         if not is_exe(kmerCount):
-            print 'kmer_countx not found. Make sure it is in your PATH or the'
-            print 'current directory, and that it is executable'
+            print('kmer_countx not found. Make sure it is in your PATH or the')
+            print('current directory, and that it is executable')
             sys.exit(1)
     else:
         kmerCount = 'kmer_countx'
@@ -98,8 +99,8 @@ else:
     if os.system('which kmer_count > /dev/null'):
         kmerCount = './kmer_count'
         if not is_exe(kmerCount):
-            print 'kmer_count not found. Make sure it is in your PATH or the'
-            print 'current directory, and that it is executable'
+            print('kmer_count not found. Make sure it is in your PATH or the')
+            print('current directory, and that it is executable')
             sys.exit(1)
     else:
         kmerCount = 'kmer_count'
@@ -108,8 +109,8 @@ else:
 if os.system('which kmer_merge > /dev/null'):
     filt = './kmer_merge'
     if not is_exe(filt):
-        print 'kmer_merge not found. Make sure it is in your PATH or the'
-        print 'current directory, and that it is executable'
+        print('kmer_merge not found. Make sure it is in your PATH or the')
+        print('current directory, and that it is executable')
         sys.exit(1)
 else:
     filt = 'kmer_merge'
@@ -119,9 +120,9 @@ if not options.sim:
         s = raw_input('{} is already in your data directory, overwrite it? Y/N '
                       .format(options.outFile))
         if s == 'Y' or s == 'y':
-          print'{} is going to be overwritten'.format(options.outFile)
+          print('{} is going to be overwritten'.format(options.outFile))
         else:
-          print'No overwritting, exit'
+          print('No overwritting, exit')
           sys.exit(2)
 
 ###Get sample list:
@@ -135,39 +136,40 @@ for fileName in os.listdir(options.dataDir):
             if sample in samples:
                 sample = fileName.split(".")[0]+fileName.split(".")[1]
                 if sample in samples:
-                    print 'Error, redundant sample or file names. Aborting!'
+                    print('Error, redundant sample or file names. Aborting!')
                     sys.exit(3)
             os.system("mkdir {}/{}".format(options.dataDir,sample))
-            os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,options.dataDir,sample))
+            os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,
+                                               options.dataDir,sample))
             samples.append(sample)
 samples.sort()
 
-print 'SPECIES LIST:'
+print('SPECIES LIST:')
 for sample in samples:
-    print sample
+    print(sample)
 
 ###Prepare kmer_count jobs
 jobList = []
 for sample in samples:
-	outFile = '{}.pkdat.gz'.format(sample)
-	command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, options.kLen,
+    outFile = '{}.pkdat.gz'.format(sample)
+    command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, options.kLen,
                n, memPerThread, outFile)
-	command1 = ''
-	for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
-        	inputFile = os.path.join(options.dataDir, sample, inputFile)
-        	handle = smartopen(inputFile)
-        	firstChar = handle.read(1)
-        	if firstChar == '@':
-            		seqFormat = 'FQ'
-        	elif firstChar == '>':
-            		seqFormat = 'FA'
-        	else:
-            		print 'Error, file {} is not FA or FQ format. Aborting!'.\
-                   		format(inputFile)
-            		sys.exit(3)
-		command1 += " -i '{}'".format(inputFile)
-    	command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
-    	jobList.append(command)
+    command1 = ''
+    for inputFile in os.listdir(os.path.join(options.dataDir, sample)):
+        inputFile = os.path.join(options.dataDir, sample, inputFile)
+        handle = smartopen(inputFile)
+        firstChar = handle.read(1)
+        if firstChar == '@':
+            seqFormat = 'FQ'
+        elif firstChar == '>':
+            seqFormat = 'FA'
+        else:
+            print('Error, file {} is not FA or FQ format. Aborting!'.\
+                           format(inputFile))
+            sys.exit(3)
+        command1 += " -i '{}'".format(inputFile)
+        command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
+        jobList.append(command)
 jobList = jobList[::-1]
 
 ###Run jobs
@@ -183,8 +185,8 @@ if len(jobList) % nThreads:
 while 1:
     if nJobs == nThreads:
         batch += 1
-        print '\n', time.strftime('%c')
-        print "running batch {}/{}".format(batch, nBatches)
+        print(time.strftime('%c'))
+        print("running batch {}/{}".format(batch, nBatches))
         for job in jobs:
             pool.apply_async(runJob, args=[job, options.sim])
         pool.close()
@@ -202,8 +204,8 @@ while 1:
     count += 1
 
 if nJobs:
-    print '\n', time.strftime('%c')
-    print "running last batch"
+    print(time.strftime('%c'))
+    print("running last batch")
     for job in jobs:
         pool.apply_async(runJob, args=[job, options.sim])
     pool.close()
@@ -228,25 +230,24 @@ if options.outFile.endswith('.gz'):
 else:
     outFile = options.outFile+'.gz'
 if not options.sim:
-    handle = smartopen(outFile, 'w')
-    print >> handle, '#-k {}'.format(options.kLen)
-    print >> handle, '#-n {}'.format(n)
+    handle = smartopen(outFile, 'wt')
+    handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n))
     for i, sample in enumerate(samples):
-        print >> handle, '#sample{}: {}'.format(i + 1, sample)
+        handle.write('#sample{}: {}\n'.format(i + 1, sample))
     handle.close()
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
 cut = []
 if options.withKmer:
-	cut.append('1')
+    cut.append('1')
 for i, sample in enumerate(samples):
     command += " '{}.pkdat.gz'".format(sample)
     cut.append(str((i + 1) * 2))
 
 command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
 
-print '\n', time.strftime('%c')
-print command
+print('\n', time.strftime('%c'))
+print(command)
 if not options.sim:
     os.system(command)
-print time.strftime('%c')
+print(time.strftime('%c'))
