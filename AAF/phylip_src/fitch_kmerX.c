@@ -912,7 +912,7 @@ void describe(node *p)
       putc(nayme[p->index - 1][i], outfile);
   } else
     fprintf(outfile, "%4ld      ", p->index - spp);
-  fprintf(outfile, "%15.10f\n", q->v);
+  fprintf(outfile, "%15.5f\n", q->v);
   if (!p->tip) {
     describe(p->next->back);
     describe(p->next->next->back);
@@ -930,9 +930,9 @@ void summarize(long numtrees)
     fprintf(outfile, " (although rooted by outgroup)");
   fprintf(outfile, " this is an unrooted tree!\n\n");
   if (!minev)
-    fprintf(outfile, "Sum of squares = %11.10f\n\n", -curtree.likelihood);
+    fprintf(outfile, "Sum of squares = %11.5f\n\n", -curtree.likelihood);
   else
-    fprintf(outfile, "Sum of branch lengths = %11.10f\n\n", -curtree.likelihood);
+    fprintf(outfile, "Sum of branch lengths = %11.5f\n\n", -curtree.likelihood);
   if ((power == 2.0) && !minev) {
     totalnum = 0;
     for (i = 1; i <= nums; i++) {
@@ -942,7 +942,7 @@ void summarize(long numtrees)
       }
     }
     fprintf(outfile, "Average percent standard deviation = ");
-    fprintf(outfile, "%11.10f\n\n",
+    fprintf(outfile, "%11.5f\n\n",
             100 * sqrt(-curtree.likelihood / (totalnum - 2)));
   }
   fprintf(outfile, "Between        And            Length\n");
