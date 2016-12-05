@@ -183,7 +183,7 @@ for i in range(sn):
         if nshare[i][j] == 0:
             dist[j][i] = dist[i][j] = 1
         else:
-            distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal))
+            distance = (-1 / float(kl) * math.log(nshare[i][j] / float(mintotal)))
             dist[j][i] = dist[i][j] = distance
             nshare[j][i] = nshare[i][j]
 
