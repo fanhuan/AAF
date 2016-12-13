@@ -2,25 +2,25 @@
 # -*- coding: utf-8 -*-
 #
 #  aaf_phylokmer.py
-#  
+#
 #  Copyright 2015,2016 Huan Fan
 #  <hfan22@wisc.edu> & Yann Surget-Groba <yann@xtbg.org.cn>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, gzip, bz2, os, time
 import multiprocessing as mp
@@ -46,16 +46,16 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20160922.1'
+version = '%prog 20161213.1'
 parser = OptionParser(usage = usage, version = version)
-parser.add_option("-k", dest = "kLen", type = int, default = 25, 
+parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25")
-parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
+parser.add_option("-t", dest = "nThreads", type = int, default = 1,
                   help = "number of threads to use, default = 1")
 parser.add_option("-n", dest = "filter", type = int, default = 1,
                   help = "k-mer filtering threshold, default = 1")
-parser.add_option("-o", dest = "outFile", default = 'phylokmer.dat.gz',
-                  help = "output file, default = phylokmer.dat.gz")
+parser.add_option("-o", dest = "outFile", default = 'phylokmer',
+                  help = "prefix of output file, default = phylokmer")
 parser.add_option("-d", dest = "dataDir", default = 'data',
                   help = "directory containing the data, default = data/")
 parser.add_option("-G", dest = "memSize", type = int, default = 4,
@@ -74,7 +74,7 @@ memPerThread = int(options.memSize / float(nThreads))
 if not memPerThread:
     print('Not enough memory, decrease nThreads or increase memSize')
     sys.exit()
-    
+
 
 ###check the data directory:
 if not os.path.isdir(options.dataDir):
@@ -144,7 +144,7 @@ for fileName in os.listdir(options.dataDir):
             samples.append(sample)
 samples.sort()
 
-print('SPECIES LIST:')
+print('SAMPLE LIST:')
 for sample in samples:
     print(sample)
 
@@ -178,7 +178,7 @@ jobs = []
 nJobs = 0
 batch = 0
 count = 0
-nBatches = len(jobList) / nThreads
+nBatches = int(len(jobList) / nThreads)
 if len(jobList) % nThreads:
     nBatches += 1
 
@@ -200,7 +200,7 @@ while 1:
         #job = pool.apply_async(runJob, args=[command, options.sim])
         nJobs += 1
     else:
-        break 
+        break
     count += 1
 
 if nJobs:
@@ -225,10 +225,7 @@ if not options.sim:
         os.remove(kmerFile)
 
 ###Run kmer_merge
-if options.outFile.endswith('.gz'):
-    outFile = options.outFile
-else:
-    outFile = options.outFile+'.gz'
+outFile = options.outFile+'.dat.gz'
 if not options.sim:
     handle = smartopen(outFile, 'wt')
     handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n))
