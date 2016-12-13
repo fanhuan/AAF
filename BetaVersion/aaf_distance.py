@@ -2,25 +2,25 @@
 # -*- coding: utf-8 -*-
 #
 #  aaf_distance.py
-#  
+#
 #  Copyright 2013, 2014,2015 Huan Fan <hfan22@wisc.edu> & Yann Surget-Groba
 #  <yann@xtbg.org.cn>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, os, math, gzip, time
 import multiprocessing as mp
@@ -41,7 +41,7 @@ def countShared(lines, sn): #count nshare only, for shared kmer table
 
 def smartopen(filename,*args,**kwargs):
     '''opens with open unless file ends in .gz, then use gzip.open
-    in theory should transparently allow reading of files regardless of 
+    in theory should transparently allow reading of files regardless of
     compression'''
     if filename.endswith('.gz'):
         return gzip.open(filename,*args,**kwargs)
@@ -52,15 +52,15 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20160922.1'
+version = '%prog 20161130.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
                   help = "input file, default = phylokmer.dat.gz ")
-parser.add_option("-t", dest = "nThreads", type = int, default = 1, 
+parser.add_option("-t", dest = "nThreads", type = int, default = 1,
                   help = "number of threads to use, default = 1")
 parser.add_option("-G", dest = "memsize", type = float, default = 1,
                   help = "max memory to use (in GB), default = 1")
-parser.add_option("-o", dest = "otpf", default= 'aaf', 
+parser.add_option("-o", dest = "otpf", default= 'aaf',
                   help = "prefix of the output files, default = aaf")
 parser.add_option("-f", dest = "countf", default = "phylokmer.dat.wc",
                   help = "k-mer diversity file, default = phylokmer.dat.wc")
@@ -126,7 +126,7 @@ line = iptf.readline()
 ll = line.split()
 kl = float(ll[1])       #kmer length
 
-while True:     
+while True:
     line = iptf.readline()
     if line.startswith('#-'):
         continue
@@ -177,9 +177,9 @@ while True:
         lines.append(line)
         line = iptf.readline()
     if not lines: #if empty
-        break 
+        break
     job = pool.apply_async(countShared, args=[lines, sn])
-    
+
     results.append(job)
     nJobs += 1
 
@@ -205,7 +205,7 @@ for i in range(sn):
     else:
         nsnt.write('%s\n' % sl[i]) #no extra comma at the end of the line
 
-dist = [[0] * sn for i in range(sn)]    
+dist = [[0] * sn for i in range(sn)]
 
 for i in range(sn):
         for j in range(i + 1, sn):
