@@ -112,6 +112,12 @@ except IOError:
     sys.exit()
 
 try:
+    distfile = open(options.otpf+'.dist','wt')
+except IOError:
+    print('Cannot open', options.otpf+'.dist', 'for writing')
+    sys.exit()
+
+try:
     nsnt = open(options.otpf+'_nshare.csv','wt')
 except IOError:
     print('Cannot open',options.otpf+'_nshare.csv', 'for writing')
@@ -221,6 +227,7 @@ total.close()
 
 ###Write infile
 infile.write('{} {}'.format(sn, sn))
+distfile.write('{} {}'.format(sn, sn))
 namedic = {}
 for i in range(sn):
     lsl = len(sl[i])
@@ -237,8 +244,10 @@ for i in range(sn):
         ssl = sl[i] + ' ' * (10 - lsl)
     namedic[ssl] = sl[i]
     infile.write('\n{}'.format(ssl))
+    distfile.write(sl[i])
     for j in range(sn):
         infile.write('\t{}'.format(dist[i][j]))
+        distfile.write('\t{}'.format(dist[i][j]))
         if i==j:
             if j == sn - 1:
                 nsnt.write('{}\n'.format(ntotal[i]))
@@ -251,6 +260,7 @@ for i in range(sn):
                 nsnt.write('%s%s' % (nshare[i][j], ','))
 
 infile.close()
+distfile.close()
 nsnt.close()
 
 ###Run fitch_kmer
@@ -272,7 +282,6 @@ for line in fh:
                     #the for loop, line==newline
 fh.close()
 fh1.close()
-command = 'mv infile {}.dist'.format(options.otpf)
 os.system(command)
 
 os.system('rm -f outfile outtree')
