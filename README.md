@@ -23,3 +23,12 @@ Example:
 	consense #use phylokmer_bootstrap_trees as infile
 		
 
+### FAQ
+1. Dear User: If I have paired end (sample.1.fq, sample.2.fq) files for each sample, should I merge
+them as input for AAF or should I keep them separately in the ./data/ folder?
+
+	Huan: If you have multiple files for one sample, please put them in the same folder. AAF detects things in one folder as one sample and take the name of the folder as the sample name. Unfortunately AAF does not deal with a mixture of folders and files in the data directory. Therefore if you have one sample that has multiple input files, the rest need to be in folders as well, even if some of them only have one sequence file. Of course you could merge input files from one sample into one so there are only files in the data directory. This way no subdirectories need to be made. Either way it should work. Just no mix of files and folders. I hope I’m not making this sounds more complicated than it needs to be. 
+
+2. Dear User: Should I use the BetaVersion?
+
+	Huan: Like any BetaVersion, it might not work on your machine and most importantly, it might not be consistant with the user manual. But let's be reckless and give it a try! Please email me or report an issue if it does not work. Thanks for your help!

@@ -22,13 +22,26 @@
 #  MA 02110-1301, USA.
 #
 
-import sys, gzip, bz2, os, time, math
+import sys, os, time, math
 import multiprocessing as mp
 import numpy as np
 
 version = '%prog 20161204.1'
 
+'''
+function included:
+smartopen
+is_exe
+present
+countTotal
+countShared
+countTotal_shared
+aaf_kmercount
+aaf_dist
+
+'''
 def smartopen(filename,*args,**kwargs):
+    import gzip, bz2
     if filename.endswith('gz'):
         return gzip.open(filename,'rt',*args,**kwargs)
     elif filename.endswith('bz2'):
