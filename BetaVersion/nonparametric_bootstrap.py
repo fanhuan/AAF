@@ -2,24 +2,24 @@
 # -*- coding: utf-8 -*-
 #
 #  nonparametric_bootstrap.py
-#  
+#
 #  Copyright 2014 Huan Fan <hfan22@wisc.edu>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, gzip, bz2, os, time, random, math
 import multiprocessing as mp
@@ -76,7 +76,7 @@ def aaf_distance(outFile,t,m,samples,kl):
     line = iptf.readline()
     line_size = sys.getsizeof(line)
     chunkLength = int(memory * 1024 ** 3 / nThreads / line_size)
-    
+
     ###Compute shared kmer matrix
     nJobs = 0
     pool = mp.Pool(nThreads)
@@ -94,11 +94,11 @@ def aaf_distance(outFile,t,m,samples,kl):
                     ntotal[i] += total[i]
                     for j in xrange(i + 1, sn):
                         nshare[i][j] += shared[i][j]
-            
+
             pool = mp.Pool(nThreads)
             nJobs = 0
             results = []
-        
+
         lines = []
         for nLines in xrange(chunkLength):
             if not line: #if empty
@@ -110,7 +110,7 @@ def aaf_distance(outFile,t,m,samples,kl):
         job = pool.apply_async(countLine, args=[lines, sn])
         results.append(job)
         nJobs += 1
-    
+
     if nJobs:
         print '\nrunning last jobs'
         pool.close()
@@ -121,9 +121,9 @@ def aaf_distance(outFile,t,m,samples,kl):
                 ntotal[i] += total[i]
                 for j in xrange(i + 1, sn):
                     nshare[i][j] += shared[i][j]
-    
+
     iptf.close()
-    
+
     ###Compute distance matrix
     dist = [[0] * sn for i in xrange(sn)]
     for i in xrange(sn):
@@ -154,7 +154,7 @@ def aaf_distance(outFile,t,m,samples,kl):
         for j in xrange(sn):
             infile.write('\t{}'.format(dist[i][j]))
     infile.close()
-    
+
     ###Run fitch_kmer
     print time.strftime("%c"), 'building tree'
     if os.path.exists("./outfile"):
@@ -184,7 +184,7 @@ parser.add_option("-G", dest = "memSize", type = int, default = 4,
                   help = "total memory limit (in GB), default = 4")
 parser.add_option("--S1",dest = "stage1", type = int, default = 0,
                   help = "number of resampling of the reads, default = 0")
-parser.add_option("--S2",dest = "stage2", type = int, default = 0,
+parser.add_option("--S2",dest = "stage2", type = int, default = 1,
                   help = "number of resampling of each kmer table, default = 0")
 parser.add_option("-s", dest = "sim", action = 'store_true',
                   help = "only print commands, do not run them")
@@ -428,7 +428,7 @@ elif options.stage1 == 0:
     nBatches = len(jobList) / nThreads
     if len(jobList) % nThreads:
         nBatches += 1
-    
+
     while 1:
         if nJobs == nThreads:
             batch += 1
@@ -445,7 +445,7 @@ elif options.stage1 == 0:
         else:
             break
         count += 1
-    
+
     if nJobs:
         print '\n', time.strftime('%c')
         print "running last batch"
@@ -512,4 +512,3 @@ else:
     os.system("mv outfile consense_outfile_total_nonparametric")
     os.system("mv outtree consensus_tree_total_nonparametric.tre")
 os.system("rm simTable_*")
-
