@@ -26,7 +26,7 @@ import sys, os, time, math
 import multiprocessing as mp
 import numpy as np
 
-version = '%prog 20161204.1'
+version = '%prog 20170209.1'
 
 '''
 function included:
@@ -40,12 +40,12 @@ aaf_kmercount
 aaf_dist
 
 '''
-def smartopen(filename,*args,**kwargs):
+def smartopen(filename, mode = 'rt'):
     import gzip, bz2
     if filename.endswith('gz'):
-        return gzip.open(filename,'rt',*args,**kwargs)
+        return gzip.open(filename, mode)
     elif filename.endswith('bz2'):
-        return bz2.BZ2File(filename,'rt',*args,**kwargs)
+        return bz2.BZ2File(filename, mode)
     else:
         return open(filename,*args,**kwargs)
 

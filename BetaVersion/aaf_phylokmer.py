@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20161213.1'
+version = '%prog 20170209.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25")
@@ -227,7 +227,7 @@ if not options.sim:
 ###Run kmer_merge
 outFile = options.outFile+'.dat.gz'
 if not options.sim:
-    handle = smartopen(outFile, 'wt')
+    handle = smartopen(outFile, 'w')
     handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n))
     for i, sample in enumerate(samples):
         handle.write('#sample{}: {}\n'.format(i + 1, sample))
