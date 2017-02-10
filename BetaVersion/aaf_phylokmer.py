@@ -228,9 +228,9 @@ if not options.sim:
 outFile = options.outFile+'.dat.gz'
 if not options.sim:
     handle = smartopen(outFile, 'w')
-    handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n))
+    handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n).encode('latin-1'))
     for i, sample in enumerate(samples):
-        handle.write('#sample{}: {}\n'.format(i + 1, sample))
+        handle.write('#sample{}: {}\n'.format(i + 1, sample).encode('latin-1'))
     handle.close()
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
