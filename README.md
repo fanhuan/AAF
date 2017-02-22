@@ -1,7 +1,7 @@
 AAF (Alignment and Assembly Free)
 ===
 
-This is a package for constructing phylogeny without doing alignment or assembly. 
+This is a package for constructing phylogeny without doing alignment or assembly. For instruction on usage, check out aafUserManual.doc.
 
 If you need to cite AAF: Fan H, Ives A, Surget-Groba Y, Cannon C (2015). An assembly and alignment-freemethod of phylogeny reconstruction from next-generation sequencing data, BMCGenomics 16:522
 ##Installation
