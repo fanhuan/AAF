@@ -217,8 +217,8 @@ if not options.sim:
         divFile = options.outFile.rstrip('.gz')+'.wc'
     else:
         divFile = options.outFile + '.wc'
-    handle = open(divFile, 'w')
-    handle.close()
+    #handle = open(divFile, 'w')
+    #handle.close()
     for sample in samples:
         kmerFile = sample + '.wc'
         os.system('cat {} >> {}'.format(kmerFile, divFile))
