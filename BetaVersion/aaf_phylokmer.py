@@ -168,8 +168,8 @@ for sample in samples:
                            format(inputFile))
             sys.exit(3)
         command1 += " -i '{}'".format(inputFile)
-        command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
-        jobList.append(command)
+    command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
+    jobList.append(command)
 jobList = jobList[::-1]
 
 ###Run jobs
@@ -177,7 +177,7 @@ pool = mp.Pool(nThreads)
 jobs = []
 nJobs = 0
 batch = 0
-count = 0
+
 nBatches = int(len(jobList) / nThreads)
 if len(jobList) % nThreads:
     nBatches += 1
@@ -201,7 +201,7 @@ while 1:
         nJobs += 1
     else:
         break
-    count += 1
+
 
 if nJobs:
     print(time.strftime('%c'))
