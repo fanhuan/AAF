@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20170209.1'
+version = '%prog 20170529.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25")
