@@ -47,7 +47,7 @@ def smartopen(filename, mode = 'rt'):
     elif filename.endswith('bz2'):
         return bz2.BZ2File(filename, mode)
     else:
-        return open(filename,*args,**kwargs)
+        return open(filename,mode)
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
