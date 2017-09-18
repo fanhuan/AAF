@@ -244,7 +244,7 @@ for i in range(sn):
         ssl = sl[i] + ' ' * (10 - lsl)
     namedic[ssl] = sl[i]
     infile.write('\n{}'.format(ssl))
-    distfile.write(sl[i])
+    distfile.write('\n' + sl[i])
     for j in range(sn):
         infile.write('\t{}'.format(dist[i][j]))
         distfile.write('\t{}'.format(dist[i][j]))
