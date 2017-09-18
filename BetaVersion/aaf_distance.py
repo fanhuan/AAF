@@ -52,7 +52,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20161130.1'
+version = '%prog 20170918.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
                   help = "input file, default = phylokmer.dat.gz ")
