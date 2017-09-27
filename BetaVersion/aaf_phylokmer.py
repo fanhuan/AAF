@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20170529.1'
+version = '%prog 20170927.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25")
@@ -134,7 +134,7 @@ for fileName in os.listdir(options.dataDir):
         if not fileName.startswith('.'):
             sample = fileName.split(".")[0]
             if sample in samples:
-                sample = fileName.split(".")[0]+fileName.split(".")[1]
+                sample = '_'.join(fileName.split(".")[:-1]
                 if sample in samples:
                     print('Error, redundant sample or file names. Aborting!')
                     sys.exit(3)
