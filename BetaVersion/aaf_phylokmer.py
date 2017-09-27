@@ -132,12 +132,13 @@ for fileName in os.listdir(options.dataDir):
         samples.append(fileName)
     else:
         if not fileName.startswith('.'):
-            sample = fileName.split(".")[0]
-            if sample in samples:
+            if fileName.endswith('.gz'):
+                sample = '_'.join(fileName.split(".")[:-2]
+            else:
                 sample = '_'.join(fileName.split(".")[:-1]
-                if sample in samples:
-                    print('Error, redundant sample or file names. Aborting!')
-                    sys.exit(3)
+            if sample in samples:
+                print('Error, redundant sample or file names. Aborting!')
+                sys.exit(3)
             os.system("mkdir {}/{}".format(options.dataDir,sample))
             os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,
                                                options.dataDir,sample))
