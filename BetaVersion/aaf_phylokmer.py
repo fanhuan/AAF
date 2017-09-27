@@ -133,9 +133,9 @@ for fileName in os.listdir(options.dataDir):
     else:
         if not fileName.startswith('.'):
             if fileName.endswith('.gz'):
-                sample = '_'.join(fileName.split(".")[:-2]
+                sample = '_'.join(fileName.split(".")[:-2])
             else:
-                sample = '_'.join(fileName.split(".")[:-1]
+                sample = '_'.join(fileName.split(".")[:-1])
             if sample in samples:
                 print('Error, redundant sample or file names. Aborting!')
                 sys.exit(3)
