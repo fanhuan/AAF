@@ -21,7 +21,8 @@ This only does ONE boostrap. It is designed this way since some users use high t
 
 Example:
 
-	python singletonCalculator.py phylokmer.dat.gz kmer_diversity.wc -t 10
+	python singletonCalculator.py phylokmer.dat.gz kmer_diversity.wc 25 -t 10  
+	#25 is k, compulsary, -t is the number of threads to use, optional. Default = 1.  
 	[This would produce a file containing the number of singletons in each sample, in this case phylokmer_singleton.wc]
 	for i in {1:100}: #boostrap 100 times
 	do

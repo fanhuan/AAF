@@ -1,8 +1,19 @@
 Version Control Notes:
 
-20150721: Add filter option in aaf_distance.py. If you did not filter during aaf_phylokmer.py,
-now you have a second chance with aaf_distance.py
+20171001: Happy national day! A lot has changed in this version. It has been one year after all. Here is what happened.
+1. Compatible with python3! yeah!
+2. Faster bootstrap, especially for working on high throughput clusters.
+3. Minor bugs in smartopen, distance file output, etc.
+4. More user-friendly now. 
+	i. input file format auto-detection
+	ii. accommodating files with dots in their names other than file format related suffixes.
+
+20160831: Added fitch_kmerX_long to give more precise branch length of trees. The default was 5 digits after the decimal. This might not be enough for extremely shallow trees. Turn on -l option in aaf_distance.py to have 20 digits.
 
 20150930: The default output of phylokmer.dat switched back into data directory instead of current working directory due to pairwise distance calculation. Also change to no matter the ending of the outfile is .gz or not, aaf is going to gzip it and add a .gz to the end of the outfile if that’s the case.
 
-20160831: Added fitch_kmerX_long to give more precise branch length of trees. The default was 5 digits after the decimal. This might not be enough for extremely shallow trees. Turn on -l option in aaf_distance.py to have 20 digits.
+20150721: Add filter option in aaf_distance.py. If you did not filter during aaf_phylokmer.py,
+now you have a second chance with aaf_distance.py
+
+
+
