@@ -24,7 +24,7 @@ Example:
 	python singletonCalculator.py phylokmer.dat.gz kmer_diversity.wc 25 -t 10  
 	#25 is k, compulsary, -t is the number of threads to use, optional. Default = 1.  
 	[This would produce a file containing the number of singletons in each sample, in this case phylokmer_singleton.wc]
-	for i in {1:100}: #boostrap 100 times
+	for ((i=1;i<=100;i++)) #boostrap 100 times
 	do
 		python nonparametric_bootstrap_s2only_skt.py -i phylokmer.dat.gz --fs phylokmer_singleton.wc -t 10
 		cat phylokmer_bootstrap.tre >> phylokmer_bootstrap
