@@ -22,7 +22,7 @@ This only does ONE boostrap. It is designed this way since some users use high t
 Example:
 
 	python singletonCalculator.py phylokmer.dat.gz kmer_diversity.wc 25 -t 10  
-	#25 is k, compulsary, -t is the number of threads to use, optional. Default = 1.  
+	[25 is k, compulsary, -t is the number of threads to use, optional. Default = 1.]  
 	[This would produce a file containing the number of singletons in each sample, in this case phylokmer_singleton.wc]
 	for ((i=1;i<=100;i++)) #boostrap 100 times
 	do
@@ -30,7 +30,8 @@ Example:
 		cat phylokmer_bootstrap.tre >> phylokmer_bootstrap
 	done
 	consense #use phylokmer_bootstrap_trees as infile
-		
+
+Note that to loop through 1 to 100, the syntax is different for Unix command. This works for bash on Ubuntu 16.04. If you are having problem with it, check out this [post](https://www.cyberciti.biz/faq/unix-for-loop-1-to-10/)	.	
 
 ## FAQ
 1. Dear User: If I have paired end (sample.1.fq, sample.2.fq) files for each sample, should I merge
