@@ -26,7 +26,7 @@ Example:
 	[This would produce a file containing the number of singletons in each sample, in this case phylokmer_singleton.wc]
 	for i in {1:100}: #boostrap 100 times
 	do
-		python nonparametric_bootstrap_s2only_skt.py phylokmer.dat.gz phylokmer_singleton.wc -t 10
+		python nonparametric_bootstrap_s2only_skt.py -i phylokmer.dat.gz --fs phylokmer_singleton.wc -t 10
 		cat phylokmer_bootstrap.tre >> phylokmer_bootstrap
 	done
 	consense #use phylokmer_bootstrap_trees as infile
