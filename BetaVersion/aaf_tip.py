@@ -2,34 +2,35 @@
 # -*- coding: utf-8 -*-
 #
 #  aaf_distance.py
-#  
-#  Copyright 2013, 2014 Huan Fan <hfan22@wisc.edu> & Yann Surget-Groba 
+#
+#  Copyright 2013, 2014 Huan Fan <hfan22@wisc.edu> & Yann Surget-Groba
 #  <yann@xtbg.org.cn>
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 from optparse import OptionParser
 import os, sys, subprocess, math, re
 
 Usage = "%prog [options] -i <input tree file> -k <kmer size> " + \
-        "--tip <tip setting file>" 
-version = '%prog 20140420.1'
+        "--tip <tip setting file>"
+version = '%prog 20171009.1'
 parser = OptionParser(usage = Usage, version = version)
-parser.add_option("-i", dest = "iptf", help = "tree file to be trimmed")
+parser.add_option("-i", dest = "iptf", help = "tree file to be trimmed", \
+                  default = "aaf.tre")
 parser.add_option("-k", dest = "klen", type = int, \
                   help = "kmer size used for constructing the input tree")
 parser.add_option("--tip", dest = "tip_file", default = "tip_file_test.txt", \
@@ -45,19 +46,39 @@ n = options.filter
 sl = [] #species list
 info = {}
 
+#process count file
+with open(options.countf) as total:
+    lines = total.readlines()
+
+sn = len(lines)
+ntotal = [0.0] * sn
+
+i = 0
+for line in lines:
+    ntotal[i] = float(line.split()[1])
+
+
+
 # process tip file
-tip_info = open(options.tip_file, 'rU')
-for line in tip_info:
-    if line.startswith('spname'):
-        continue
-    line = line.split()
-    if len(line) == 4:
-        sl.append(line[0])
-        info[line[0]] = line[1:]
-tip_info.close()
+with open(options.tip_file, 'rU') as tip_info:
+    tips = tip_info.readlines()
+
+if sn == len(tips) - 1:
+    tips = tips[1:]
+    for line in tips:
+        line = line.split()
+        if len(line) == 4:
+            sl.append(line[0])
+            info[line[0]] = line[1:]
+        else:
+            print("tip-info not in the right format, exit")
+            sys.exit()
+else:
+    print("kmer diversity file does not match with the tip info file, exit")
+    sys.exit()
 
 if not info:
-    print "tip-info file empty, exit"
+    print("tip-info file empty, exit")
     sys.exit()
 
 tip = {}
@@ -76,19 +97,6 @@ for key in info:
                    float(kl)) + L * (1 -(1 - e) ** float(kl))) / ((1 - \
                    math.exp(-L * (1 - e) ** float(kl))) ** 2))
 
-#process count file
-total = open(options.countf)
-sn = len(sl)
-ntotal = [0.0] * sn
-lines = total.readlines()
-if len(lines) == sn:
-    i = 0
-    for line in lines:
-        ntotal[i] = float(line.split()[1])
-else:
-    print "kmer diversity file does not have the right amount of species, exit"
-    sys.exit()
-total.close()
 
 # calculate the tip to trim
 tip_total = 0
@@ -112,7 +120,7 @@ for species in tree_list:
     bl_tip = str(float(bl) - tip_ave)
     species = species.replace(bl, bl_tip)
     tree_tips.append(species)
-    
-Dtip = open('tip_' + options.iptf, 'w')
+
+Dtip = open('tip_' + options.iptf.split('/')[-1], 'w')
 Dtip.write(','.join(tree_tips))
 Dtip.close()
