@@ -46,10 +46,10 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20170927.1'
+version = '%prog 20171102.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
-                  help = "k-mer length, default = 25")
+                  help = "k-mer length, default = 25， 1 - 55")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1,
                   help = "number of threads to use, default = 1")
 parser.add_option("-n", dest = "filter", type = int, default = 1,
