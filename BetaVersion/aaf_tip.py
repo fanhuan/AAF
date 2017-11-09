@@ -27,7 +27,7 @@ import os, sys, subprocess, math, re
 
 Usage = "%prog [options] -i <input tree file> -k <kmer size> " + \
         "--tip <tip setting file>"
-version = '%prog 20171009.1'
+version = '%prog 20171108.1'
 parser = OptionParser(usage = Usage, version = version)
 parser.add_option("-i", dest = "iptf", help = "tree file to be trimmed", \
                   default = "aaf.tre")
