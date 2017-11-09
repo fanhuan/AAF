@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 #  nonparametric_bootstrap_s2.py
-#  
+#
 #  Copyright 2015 Huan Fan <hfan22@wisc.edu>
-#  
+#
 #  This is a special nonparametric bootstrap script for AAF that starts with
 #  phylokmer.dat.gz, meaning only doing the second stage of bootstrap. You can
 #  set S1==0 in nonparametric_bootstrap.py but it will still generate the phylokmer.dat.gz
@@ -15,17 +15,17 @@
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, gzip, bz2, os, time, random, math
 import multiprocessing as mp
@@ -44,7 +44,7 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 def runJob(command, sim):
-    print command
+    print(command)
     if not sim:
         os.system(command)
     return 1
@@ -53,8 +53,8 @@ def countLine(lines, sn): #count both shared the total kmers, for total kmer tab
     shared = [[0] * sn for i in xrange(sn)]
     for line in lines:
         line = line.split()
-	if len(line) == sn+1:
-		line = line[1:]
+    if len(line) == sn+1:
+        line = line[1:]
         line = [int(i) for i in line]
         for i in xrange(sn):
             for j in xrange(i + 1, sn):
@@ -66,12 +66,12 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
     try:
         iptf = smartopen(outFile)
     except IOError:
-        print 'Cannot open file', outFile
+        print('Cannot open file', outFile)
         sys.exit()
     try:
         infile = open('infile','w')
     except IOError:
-        print 'Cannot open infile for writing'
+        print('Cannot open infile for writing')
         sys.exit()
     ###Initialize shared kmers matrix
     nshare = [[0] * sn for i in xrange(sn)]
@@ -79,16 +79,15 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
     line = iptf.readline()
     line_size = sys.getsizeof(line)
     chunkLength = int(memory * 1024 ** 3 / nThreads / line_size)
-    
+
     ###Compute shared kmer matrix
     nJobs = 0
     pool = mp.Pool(nThreads)
     results = []
-    print '\n', time.strftime('%c'), 'start calulation distances'
+    print('\n', time.strftime('%c'), 'start calulation distances')
     while True:
         if nJobs == nThreads:
-            #print '{} running {} jobs'.format(time.strftime('%c'), nThreads)
-            print '.',
+            print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
             pool.close()
             pool.join()
             for job in results:
@@ -96,11 +95,11 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
                 for i in xrange(sn):
                     for j in xrange(i + 1, sn):
                         nshare[i][j] += shared[i][j]
-            
+
             pool = mp.Pool(nThreads)
             nJobs = 0
             results = []
-        
+
         lines = []
         for nLines in xrange(chunkLength):
             if not line: #if empty
@@ -112,9 +111,9 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
         job = pool.apply_async(countLine, args=[lines, sn])
         results.append(job)
         nJobs += 1
-    
+
     if nJobs:
-        print '\nrunning last jobs'
+        print('\nrunning last jobs')
         pool.close()
         pool.join()
         for job in results:
@@ -122,9 +121,9 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
             for i in xrange(sn):
                 for j in xrange(i + 1, sn):
                     nshare[i][j] += shared[i][j]
-    
+
     iptf.close()
-    
+
     ###Compute distance matrix
     dist = [[0] * sn for i in xrange(sn)]
     for i in xrange(sn):
@@ -155,21 +154,21 @@ def aaf_distance(outFile,t,m,samples,kl,s2,ntotal):
         for j in xrange(sn):
             infile.write('\t{}'.format(dist[i][j]))
     infile.close()
-    
+
     ###Run fitch_kmer
-    print time.strftime("%c"), 'building tree'
+    print(time.strftime("%c"), 'building tree')
     if os.path.exists("./outfile"):
         os.system("rm -f outfile outtree")
     command = 'printf "K\n{}\nY" | {} > /dev/null'.format(kl,fitch)
-    print command
+    print(command)
     os.system(command)
-    print time.strftime("%c"), 'end, chunk size =', chunkLength
+    print(time.strftime("%c"), 'end, chunk size =', chunkLength)
     #command = 'mv infile infile_{}'.format(s2)
     #os.system(command)
     return
 
 usage = "usage: %prog [options]"
-version = '%prog 20151105.1'
+version = '%prog 20171109.1'
 parser = OptionParser(usage = usage,version = version)
 parser.add_option("-t", dest = "nThreads", type = int, default = 1,
                   help = "number of threads to use, default = 1")
@@ -197,8 +196,8 @@ memory = options.memSize
 if os.system('which fitch_kmerX > /dev/null'):
     fitch = './fitch_kmerX'
     if not is_exe(fitch):
-        print 'fitch_kmerX not found. Make sure it is in your PATH or the'
-        print 'current directory, and that it is executable'
+        print('fitch_kmerX not found. Make sure it is in your PATH or the')
+        print('current directory, and that it is executable')
         sys.exit()
 else:
     fitch = 'fitch_kmerX'
@@ -207,8 +206,8 @@ else:
 if os.system('which consense > /dev/null'):
     consense = './consense'
     if not is_exe(fitch):
-        print 'consense not found. Make sure it is in your PATH or the'
-        print 'current directory, and that it is executable'
+        print('consense not found. Make sure it is in your PATH or the')
+        print('current directory, and that it is executable')
         sys.exit()
 else:
     consense = 'consense'
@@ -217,17 +216,17 @@ else:
 try:
 	kmerTable = smartopen(options.iptf)
 except IOError:
-	print 'Cannot open file', options.iptf
+	print('Cannot open file', options.iptf)
 	sys.exit()
 
 if not os.path.isfile(options.countf):
-	print 'Cannot find file', options.countf
+	print('Cannot find file', options.countf)
 	sys.exit()
 
 try:
 	total = open(options.countf)
 except IOError:
-	print 'Cannot open file', options.countf
+	print('Cannot open file', options.countf)
 	sys.exit()
 
 
@@ -258,16 +257,16 @@ Ntotal = [0.0] * sn
 for i in xrange(sn):
     Ntotal[i] = float(total.readline().split()[1])
 
-print 'SPECIES LIST:'
+print('SPECIES LIST:')
 for sample in samples:
-    print sample
+    print(sample)
 if os.path.exists("./consensus_trees_table_nonparametric"):
     os.system("rm -f consensus_trees_table_nonparametric consensus_tree_table_nonparametric.tre consense_outfile_table_nonparametric")
 
 lines= kmerTable.readlines()
 table_len = len(lines)
 for s2 in xrange(options.stage2):
-    print "{} out of {} times of bootstrap over the real total kmer table.".format(s2+1,options.stage2)
+    print("{} out of {} times of bootstrap over the real total kmer table.".format(s2+1,options.stage2))
     simTable = open('simTable_{}'.format(s2),'w')
 #    for x in xrange(table_len):
     for x in xrange(table_len/kl):
@@ -284,10 +283,9 @@ if os.path.exists("./outfile"):
     os.system("rm -f outfile outtree")
 
 command = 'printf "consensus_trees_table_nonparametric\nY" | {} > /dev/null'.format(consense)
-print command
+print(command)
 os.system(command)
 os.system("mv outfile consense_outfile_table_nonparametric")
 os.system("mv outtree consensus_tree_table_nonparametric.tre")
 
 os.system("rm simTable_*")
-

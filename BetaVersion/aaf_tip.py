@@ -27,7 +27,7 @@ import os, sys, subprocess, math, re
 
 Usage = "%prog [options] -i <input tree file> -k <kmer size> " + \
         "--tip <tip setting file>"
-version = '%prog 20171108.1'
+version = '%prog 20171109.1'
 parser = OptionParser(usage = Usage, version = version)
 parser.add_option("-i", dest = "iptf", help = "tree file to be trimmed", \
                   default = "aaf.tre")
@@ -83,11 +83,8 @@ if not info:
 
 tip = {}
 
-for key in info:
-    c = float(info[key][0])
-    r = float(info[key][1])
-    e = float(info[key][2])
-    L = c / r * (r - kl + 1)
+'''
+Previous wrong equations:
     if n: # with filter
         tip[key] = -1 / float(kl) * math.log(1 - math.exp(-L * (1 - e) ** \
                    float(kl)) - L * math.exp(-L * (1 - e) ** float(kl)) * \
@@ -96,8 +93,26 @@ for key in info:
         tip[key] = 1 / float(kl) * math.log((1 - math.exp(-L * (1 - e) ** \
                    float(kl)) + L * (1 -(1 - e) ** float(kl))) / ((1 - \
                    math.exp(-L * (1 - e) ** float(kl))) ** 2))
-
-
+'''
+for key in info:
+    c = float(info[key][0])
+    r = float(info[key][1])
+    e = float(info[key][2])
+    L = c / r * (r - float(kl) + 1)
+    Pta = L * (1 - (1 - e) * float(kl))
+    Pr = 1 - math.exp(-L)
+    Prf = 1 - (1 + L) * math.exp(-L)
+    #Eq.6
+    Pe = 1 - (math.exp(-L * (1-e)**float(kl)) - math.exp(-L))/(1 - math.exp(-L))
+    #Eq.7
+    Pef = 1 - (math.exp(-L * (1-e)**float(kl)) - (1+L) * math.exp(-L))/(1-(1+L) \
+        * math.exp(-L)) - (1-e)**float(kl) * L * math.exp(-L*(1-e)**float(kl)) \
+        /(1-(1+L)* math.exp(-L))
+    if n: # with filter
+        tip[key] = 0.5*(1/float(kl)) * math.log(1/(Prf * Pef))
+    else: # no filter
+        #Eq.10
+        tip[key] = 0.5/float(kl) * math.log((Pr*Pe + Pta)/(Pr**2 * Pe**2))
 # calculate the tip to trim
 tip_total = 0
 for i in range(sn):
