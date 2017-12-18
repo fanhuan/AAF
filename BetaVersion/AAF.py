@@ -351,7 +351,6 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
             ssl = sl[i] + ' ' * (10 - lsl)
         namedic[ssl] = sl[i]
         infile.write('\n{}'.format(ssl))
-        distfile.write('\n' + sl[i])
         for j in range(sn):
             infile.write('\t{}'.format(dist[i][j]))
 
