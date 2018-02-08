@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20171102.1'
+version = '%prog 20180208.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25， 1 - 55")
@@ -160,9 +160,9 @@ for sample in samples:
         inputFile = os.path.join(options.dataDir, sample, inputFile)
         handle = smartopen(inputFile)
         firstChar = handle.read(1)
-        if firstChar == '@':
+        if firstChar in ['@',b'@']:
             seqFormat = 'FQ'
-        elif firstChar == '>':
+        elif firstChar in ['>',b'>']:
             seqFormat = 'FA'
         else:
             print('Error, file {} is not FA or FQ format. Aborting!'.\
