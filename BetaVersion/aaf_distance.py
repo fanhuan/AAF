@@ -232,13 +232,13 @@ namedic = {}
 for i in range(sn):
     lsl = len(sl[i])
     if lsl >= 10:
-        ssl = sl[i][:10]
+        ssl = sl[i][-10:]
         appendix = 1
         while ssl in namedic:
             if appendix < 10:
-                ssl = sl[i][:9]+str(appendix)
+                ssl = sl[i][-9:]+str(appendix)
             elif appendix > 9:
-                ssl = sl[i][:8]+str(appendix)
+                ssl = sl[i][-8:]+str(appendix)
             appendix += 1
     else:
         ssl = sl[i] + ' ' * (10 - lsl)
