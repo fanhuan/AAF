@@ -25,34 +25,10 @@
 import sys, os, math, gzip, time
 import multiprocessing as mp
 from optparse import OptionParser
-
-def countShared(lines, sn): #count nshare only, for shared kmer table
-    shared = [[0] * sn for i in range(sn)]
-    for line in lines:
-        line = line.split()
-        if len(line) == sn+1:
-            line = line[1:]
-        line = [int(i) for i in line]
-        for i in range(sn):
-            for j in range(i + 1, sn):
-                if line[i]*line[j] != 0:
-                    shared[i][j] += 1
-    return shared
-
-def smartopen(filename,*args,**kwargs):
-    '''opens with open unless file ends in .gz, then use gzip.open
-    in theory should transparently allow reading of files regardless of
-    compression'''
-    if filename.endswith('.gz'):
-        return gzip.open(filename,*args,**kwargs)
-    else:
-        return open(filename,*args,**kwargs)
-
-def is_exe(fpath):
-    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+from AAF import countShared_single, smartopen, is_exe
 
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20170918.1'
+version = '%prog 20210823.1'
 parser = OptionParser(Usage, version = version)
 parser.add_option("-i", dest = "iptf", default = "phylokmer.dat.gz",
                   help = "input file, default = phylokmer.dat.gz ")
