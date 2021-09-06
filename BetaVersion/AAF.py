@@ -300,14 +300,14 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     namedic = {}
     for i in range(sn):
         lsl = len(sl[i])
-        if lsl >= 10:
-            ssl = sl[i][:10]
-        appendix = 1
-        while ssl in namedic:
-            ssl = ssl[:-len(str(appendix))] + str(appendix)
-            appendix += 1
         if lsl < 10:
             ssl = sl[i] + ' ' * (10 - lsl)
+        else:
+            ssl = sl[i][:10]
+            appendix = 1
+            while ssl in namedic:
+                ssl = ssl[:-len(str(appendix))] + str(appendix)
+                appendix += 1
         namedic[ssl] = sl[i]
         infile.write('\n{}'.format(ssl))
         for j in range(sn):
