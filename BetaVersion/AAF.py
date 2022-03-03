@@ -252,10 +252,11 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     ### Using only 1G of RAM intotal. As a result, we could use all the cores
     ### available, which was not possible for the kmer_count step.
     cpu_num = psutil.cpu_count()
+
     ###Compute the number of lines to process per thread (chunk size)
     line = iptf.readline()
     line_size = sys.getsizeof(line)
-    chunkLength = int(1024 ** 3 / cpu_num / line_size)
+    chunkLength = int(1024 ** 3 / (cpu_num/2) / line_size)
     print('chunkLength = {}'.format(chunkLength))
     while True:
         lines = []
@@ -267,7 +268,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
         if not lines: #if empty
             break
         ###Compute shared kmer matrix
-        with PPE(max_workers = cpu_num) as executor:
+        with PPE(max_workers = int(cpu_num/2)) as executor:
             for result in executor.map(countShared_single,lines):
                 for i in range(sn):
                     for j in range(i + 1, sn):

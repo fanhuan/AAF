@@ -28,7 +28,7 @@ from optparse import OptionParser
 from AAF import smartopen, is_exe, countShared_single, aaf_dist, run_command, aaf_kmercount
 
 usage = "usage: %prog [options]"
-version = '%prog 20210823.1'
+version = '%prog 20220228.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")
