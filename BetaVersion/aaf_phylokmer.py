@@ -46,7 +46,7 @@ def runJob(command, sim):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20180208.1'
+version = '%prog 20220717.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k-mer length, default = 25， 1 - 55")
@@ -230,8 +230,9 @@ outFile = options.outFile+'.dat.gz'
 if not options.sim:
     handle = smartopen(outFile, 'w')
     handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n).encode('latin-1'))
-    for i, sample in enumerate(samples):
-        handle.write('#sample{}: {}\n'.format(i + 1, sample).encode('latin-1'))
+    handle.write('kmer\t')
+    handle.write('\t'.join(samples))
+    handle.write('\n')
     handle.close()
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
