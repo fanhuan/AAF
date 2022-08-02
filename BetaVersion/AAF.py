@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  AAF.py
+#  aaf_kmercount.py
 #
-#  Copyright 2016 Huan Fan <hfan22@wisc.edu>
+#  Copyright 2017 Huan Fan <hfan22@wisc.edu>
 #
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -22,24 +22,36 @@
 #  MA 02110-1301, USA.
 #
 
-import sys, os, time, math
-import multiprocessing as mp
+import sys, os, time, math, psutil
+from concurrent.futures import ProcessPoolExecutor as PPE
 import numpy as np
 
-version = '%prog 20170209.1'
+
+version = '%prog 20171211.1'
+
 
 '''
+run_command
 function included:
 smartopen
 is_exe
 present
 countTotal
-countShared
+countShared_single
 countTotal_shared
 aaf_kmercount
 aaf_dist
 
 '''
+def run_command(command):
+    print(command)
+    print(time.strftime('%c'))
+    try:
+        os.system(command)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
+
 def smartopen(filename, mode = 'rt'):
     import gzip, bz2
     if filename.endswith('gz'):
@@ -65,17 +77,26 @@ def countTotal(lines):
     line_total = np.sum(line_list,axis = 0)
     return line_total
 
-def countShared(lines, sn): #count nshare only, for shared kmer table
+def countShared_single(line):
+    '''takes one line from the shared kmer table(skt) and count nshare.
+    Previously this function is called countShared and it takes a chunk of
+    skt.
+    '''
+    line = line.split()
+    if line[0][0].isdigit():
+        sn = len(line)
+        flag = 'd'
+    else:
+        sn = len(line) - 1
+        flag = 'k'
     shared = [[0] * sn for i in range(sn)]
-    for line in lines:
-        line = line.split()
-        if len(line) == sn+1:
-            line = line[1:]
-        line = [int(i) for i in line]
-        for i in range(sn):
-            for j in range(i + 1, sn):
-                if line[i]*line[j] != 0:
-                    shared[i][j] += 1
+    if flag == 'k':
+        line = line[1:]
+    line = [int(i) for i in line]
+    for i in range(sn):
+        for j in range(i + 1, sn):
+            if line[i]*line[j] != 0:
+                shared[i][j] += 1
     return shared
 
 def countTotal_shared(lines,sn):
@@ -133,16 +154,17 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
                 os.system("mv {}/{} {}/{}/".format(dataDir,fileName,dataDir,sample))
                 samples.append(sample)
     samples.sort()
-    sn = len(samples)
     print(time.strftime('%c'))
     print('SPECIES LIST:')
     for sample in samples:
         print(sample)
+
     ###Prepare kmer_count jobs
     jobList = []
     for sample in samples:
         outFile = '{}.pkdat.gz'.format(sample)
-        command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, k, n, memPerThread, outFile)
+        command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, k, n,
+                    memPerThread, outFile)
         command1 = ''
         for inputFile in os.listdir(os.path.join(dataDir, sample)):
             inputFile = os.path.join(dataDir, sample, inputFile)
@@ -158,48 +180,9 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
             command1 += " -i '{}'".format(inputFile)
         command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
         jobList.append(command)
-
-    jobList = jobList[::-1] #reverse the order
     ###Run jobs
-    pool = mp.Pool(nThreads)
-    jobs = []
-    nJobs = 0
-    batch = 0
-    count = 0
-    nBatches = int(len(jobList) / nThreads)
-    if len(jobList) % nThreads:
-        nBatches += 1
-
-    while 1:
-        if nJobs == nThreads:
-            batch += 1
-            print(time.strftime('%c'))
-            print("running batch {}/{}".format(batch, nBatches))
-            for job in jobs:
-                print(job)
-                pool.apply_async(os.system(job))
-            pool.close()
-            pool.join()
-            pool = mp.Pool(nThreads)
-            nJobs = 0
-            jobs = []
-        if jobList:
-            command = jobList.pop()
-            jobs.append(command)
-            #job = pool.apply_async(runJob, args=[command, options.sim])
-            nJobs += 1
-        else:
-            break
-        count += 1
-
-    if nJobs:
-        print(time.strftime('%c'))
-        print("running last batch")
-        for job in jobs:
-            print(job)
-            pool.apply_async(os.system(job))
-        pool.close()
-        pool.join()
+    with PPE(max_workers = nThreads) as executor:
+        executor.map(run_command,jobList)
     return samples
 
 
@@ -265,32 +248,17 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     sn = len(samples)    #species number
     nshare = [[0] * sn for i in range(sn)]
 
-    ###Compute the number of lines to process per thread
+    ### It turns out to be very slow if we give very big chunks. So we will be
+    ### Using only 1G of RAM intotal. As a result, we could use all the cores
+    ### available, which was not possible for the kmer_count step.
+    cpu_num = psutil.cpu_count()
+
+    ###Compute the number of lines to process per thread (chunk size)
     line = iptf.readline()
     line_size = sys.getsizeof(line)
-    chunkLength = int(1024 ** 3 / nThreads / line_size)
+    chunkLength = int(1024 ** 3 / (cpu_num/2) / line_size)
     print('chunkLength = {}'.format(chunkLength))
-
-    ###Compute shared kmer matrix
-    nJobs = 0
-    pool = mp.Pool(nThreads)
-    results = []
-    print('{} start running jobs'.format(time.strftime('%c')))
-    print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
     while True:
-        if nJobs == nThreads:
-            pool.close()
-            pool.join()
-            for job in results:
-                shared = job.get()
-                for i in range(sn):
-                    for j in range(i + 1, sn):
-                        nshare[i][j] += shared[i][j]
-            pool = mp.Pool(nThreads)
-            nJobs = 0
-            results = []
-            print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-
         lines = []
         for nLines in range(chunkLength):
             if not line: #if empty
@@ -299,20 +267,12 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
             line = iptf.readline()
         if not lines: #if empty
             break
-        job = pool.apply_async(countShared, args=[lines, sn])
-
-        results.append(job)
-        nJobs += 1
-
-    if nJobs:
-        print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
-        pool.close()
-        pool.join()
-        for job in results:
-            shared = job.get()
-            for i in range(sn):
-                for j in range(i + 1, sn):
-                    nshare[i][j] += shared[i][j]
+        ###Compute shared kmer matrix
+        with PPE(max_workers = int(cpu_num/2)) as executor:
+            for result in executor.map(countShared_single,lines):
+                for i in range(sn):
+                    for j in range(i + 1, sn):
+                        nshare[i][j] += result[i][j]
 
     iptf.close()
 
@@ -330,7 +290,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
                 dist[j][i] = dist[i][j] = 1
             else:
                 distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal))
-                print(mintotal,nshare[i][j])
+                #print(mintotal,nshare[i][j])
                 dist[j][i] = dist[i][j] = distance
                 nshare[j][i] = nshare[i][j]
 
@@ -341,14 +301,14 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     namedic = {}
     for i in range(sn):
         lsl = len(sl[i])
-        if lsl >= 10:
-            ssl = sl[i][:10]
-        appendix = 1
-        while ssl in namedic:
-            ssl = ssl[:-len(str(appendix))] + str(appendix)
-            appendix += 1
         if lsl < 10:
             ssl = sl[i] + ' ' * (10 - lsl)
+        else:
+            ssl = sl[i][:10]
+            appendix = 1
+            while ssl in namedic:
+                ssl = ssl[:-len(str(appendix))] + str(appendix)
+                appendix += 1
         namedic[ssl] = sl[i]
         infile.write('\n{}'.format(ssl))
         for j in range(sn):
