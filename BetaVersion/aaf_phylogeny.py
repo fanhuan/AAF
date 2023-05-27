@@ -28,7 +28,7 @@ from optparse import OptionParser
 from AAF import smartopen, is_exe, countShared_single, aaf_dist, run_command, aaf_kmercount
 
 usage = "usage: %prog [options]"
-version = '%prog 20220228.1'
+version = '%prog 20220817.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")
@@ -111,4 +111,6 @@ print(time.strftime('%c'))
 #Calculate the distance and generate the tree!
 aaf_dist(outFile,divFile,nThreads,samples,kl)
 command = 'mv aaf.tre {}.tre'.format(dataDir)
+# command = 'mv aaf.tre %s_k%s.tre'
+#'cat %s %s > %s' % (fq1,fq2,Args.workdir + output_file +'.fq')
 command = 'mv aaf.dist {}.dist'.format(dataDir)

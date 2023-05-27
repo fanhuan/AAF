@@ -228,8 +228,8 @@ if not options.sim:
 ###Run kmer_merge
 outFile = options.outFile+'.dat.gz'
 if not options.sim:
-    handle = smartopen(outFile, 'w')
-    handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n).encode('latin-1'))
+    handle = smartopen(outFile, 'wt')
+    handle.write('#-k {}\n#-n {}\n'.format(options.kLen,n))
     handle.write('kmer\t')
     handle.write('\t'.join(samples))
     handle.write('\n')
