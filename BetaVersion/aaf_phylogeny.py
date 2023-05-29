@@ -50,6 +50,7 @@ n = options.filter
 memPerThread = int(options.memSize / float(nThreads))
 kl = options.kLen
 dataDir = options.dataDir
+dataDir = dataDir.rstrip("/")
 memSize = options.memSize
 
 if not memPerThread:
